@@ -46,11 +46,13 @@ class LD48 {
     
     this.initialised = false
     this.assets = {
+      /*
       goal: new ImageAsset('assets/goal.png'),
       hero: new ImageAsset('assets/hero.png'),
       instructions: new ImageAsset('assets/instructions.png'),
       splash: new ImageAsset('assets/splash.png'),
       coin: new ImageAsset('assets/coin.png'),
+      */
     }
     
     this.hero = null

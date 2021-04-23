@@ -1,0 +1,172 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  font-family: "Source Code Pro", monospace;
+  font-size: 16px;
+  background: #fff;
+  color: #444;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+a {
+  color: #c44;
+  text-decoration: none;
+}
+a:hover {
+  color: #e66;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+table td,
+table th {
+  border: 1px solid #444;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  margin: 0 auto;
+  background: #fff;
+}
+
+#app > header,
+#app > footer {
+  font-size: 0.5rem;
+  flex: 0 0 auto;
+  padding: 0.5rem;
+  background: #c44;
+  color: #eee;
+}
+
+#app > header h1 {
+  margin: 0;
+  padding: 0;
+}
+
+#app > footer {
+  text-align: right;
+}
+#app > footer a {
+  color: #fff;
+  text-decoration: underline;
+}
+
+#app > main {
+  background: #444 url("../assets/simple-bg.png");
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  position: relative;
+}
+#app > main #canvas {
+  flex: 0 0 auto;
+  display: block;
+  margin: 0 auto;
+  max-width: 100vw;
+  max-height: 80vh;
+  cursor: pointer;
+  user-select: none;
+  touch-action: none;
+  background: #fff;
+}
+#app > main.fullscreen #canvas {
+  max-height: 100vh;
+}
+#app > main #menu {
+  display: block;
+  overflow: auto;
+  position: absolute;
+  border: 1px solid red;
+  visibility: visible;
+  background: rgba(128, 128, 128, 0.5);
+}
+#app > main #menu #banner {
+  display: block;
+  width: 50%;
+  margin: 0 auto;
+}
+#app > main #menu > p {
+  font-size: 0.8em;
+  margin: 1em auto;
+  background: #fff;
+  max-width: 40em;
+  border-radius: 1em;
+  padding: 0.5em 1em;
+}
+#app > main #menu #levels-list {
+  font-size: 0.8em;
+  margin: 1em auto;
+  background: #fff;
+  max-width: 40em;
+  border-radius: 1em;
+}
+#app > main #menu #levels-list > div {
+  padding: 0.5em 1em;
+}
+#app > main #menu #levels-list > div button {
+  cursor: pointer;
+  color: #fff;
+  background: #c44;
+  border: 2px solid #ccc;
+  border-radius: 1rem;
+  box-shadow: 0.1rem 0.1rem 0 rgba(0, 0, 0, 0.5);
+  width: 10em;
+}
+#app > main #menu #levels-list > div button:hover {
+  border: 2px solid #fff;
+}
+#app > main #menu #levels-list > div button:active {
+  border: 2px solid #888;
+}
+#app > main #menu #levels-list > div span {
+  margin-left: 1em;
+}
+#app > main .ui-button {
+  position: absolute;
+  cursor: pointer;
+  color: #fff;
+  background: #c44;
+  border: 2px solid #ccc;
+  border-radius: 1rem;
+  box-shadow: 0.1rem 0.1rem 0 rgba(0, 0, 0, 0.5);
+}
+#app > main .ui-button:hover {
+  border: 2px solid #fff;
+}
+#app > main .ui-button:active {
+  border: 2px solid #888;
+}
+#app > main .ui-button img {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+#app > main #button-home {
+  top: 0.5em;
+  left: 0.5em;
+}
+#app > main #button-fullscreen {
+  top: 0.5em;
+  right: 0.5em;
+}
+#app > main #button-reload {
+  top: 3.5em;
+  left: 0.5em;
+}
+
+/*# sourceMappingURL=main.css.map */
