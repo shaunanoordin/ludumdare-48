@@ -62,9 +62,14 @@ class LD48 {
     
     this.playerAction = PLAYER_ACTIONS.IDLE
     this.playerInput = {
+      // Mouse/touchscreen input
       pointerStart: undefined,
       pointerCurrent: undefined,
       pointerEnd: undefined,
+      
+      // Keys that are currently being pressed.
+      // keysPressed = { key: { duration, acknowledged } }
+      keysPressed: {},
     }
     
     this.victory = false
@@ -162,6 +167,13 @@ class LD48 {
       }
     }
     // ----------------
+          
+    // Increment the duration of each currently pressed key
+    Object.keys(this.playerInput.keysPressed).forEach(key => {
+      if (this.playerInput.keysPressed[key]) this.playerInput.keysPressed[key].duration += timeStep
+    })
+          
+    this.processPlayerInput()
   }
   
   paint () {
@@ -295,6 +307,26 @@ class LD48 {
     // ----------------
   }
   
+  processPlayerInput (timeStep) {
+    if (this.hero) {
+      // playerActor.intent = undefined;
+      
+      const keysPressed = this.playerInput.keysPressed
+      let moveX = 0
+      let moveY = 0
+      
+      if (keysPressed['ArrowRight']) moveX++
+      if (keysPressed['ArrowDown']) moveY++
+      if (keysPressed['ArrowLeft']) moveX--
+      if (keysPressed['ArrowUp']) moveY--
+      
+      if (moveX || moveY) {
+        this.hero.speedX = 10 * moveX
+        this.hero.speedY = 10 * moveY
+      }
+    }
+  }
+  
   /*
   Section: UI and Event Handling
   ----------------------------------------------------------------------------
@@ -325,9 +357,14 @@ class LD48 {
     this.html.buttonFullscreen.addEventListener('click', this.buttonFullscreen_onClick.bind(this))
     this.html.buttonReload.addEventListener('click', this.buttonReload_onClick.bind(this))
     
+    this.html.main.addEventListener('keydown', this.onKeyDown.bind(this))
+    this.html.main.addEventListener('keyup', this.onKeyUp.bind(this))
+    
     window.addEventListener('resize', this.updateUI.bind(this))
     this.updateUI()
     this.hideUI()  // Hide until all assets are loaded
+    
+    this.html.main.focus()
   }
   
   hideUI () {
@@ -430,6 +467,20 @@ class LD48 {
     }
     
     return stopEvent(e)
+  }
+  
+  onKeyDown (e) {
+    console.log('+++ keydown', e)
+    if (!this.playerInput.keysPressed[e.key]) {
+      this.playerInput.keysPressed[e.key] = {
+        duration: 0,
+        acknowledged: false,
+      }
+    }
+  }
+  
+  onKeyUp (e) {
+    this.playerInput.keysPressed[e.key] = undefined
   }
   
   buttonHome_onClick () {
