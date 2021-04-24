@@ -16,7 +16,7 @@ class Hero extends Entity {
   paint () {
     const app = this._app
     
-    this.colour = (app.playerAction === PLAYER_ACTIONS.PULLING)
+    this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
       ? '#e42'
       : '#c44'
     super.paint()

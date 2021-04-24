@@ -65,7 +65,7 @@ class Entity {
     // DEBUG: Player colours
     if (this === this._app.hero) {
       c2d.fillStyle = '#c44'
-      if (this._app.playerAction === PLAYER_ACTIONS.PULLING) {
+      if (this._app.playerAction === PLAYER_ACTIONS.POINTER_DOWN) {
         c2d.fillStyle = '#e42'
       }
     }*/

@@ -199,7 +199,7 @@ class LD48 {
     // Draw player input
     // ----------------
     if (
-      this.playerAction === PLAYER_ACTIONS.PULLING
+      this.playerAction === PLAYER_ACTIONS.POINTER_DOWN
       && this.hero
       && this.playerInput.pointerCurrent
     ) {
@@ -210,23 +210,7 @@ class LD48 {
       c2d.lineWidth = TILE_SIZE / 8
       
       c2d.beginPath()
-      c2d.moveTo(this.hero.x + camera.x, this.hero.y + camera.y)
-      c2d.lineTo(inputCoords.x, inputCoords.y)
-      c2d.stroke()
-      c2d.beginPath()
       c2d.arc(inputCoords.x, inputCoords.y, TILE_SIZE, 0, 2 * Math.PI)
-      c2d.stroke()
-      
-      const arrowCoords = {
-        x: this.hero.x - (inputCoords.x - this.hero.x) + camera.x,
-        y: this.hero.y - (inputCoords.y - this.hero.y) + camera.y,
-      }
-      c2d.strokeStyle = '#e42'
-      c2d.lineWidth = TILE_SIZE / 8
-      
-      c2d.beginPath()
-      c2d.moveTo(this.hero.x + camera.x, this.hero.y + camera.y)
-      c2d.lineTo(arrowCoords.x + camera.x, arrowCoords.y + camera.y)
       c2d.stroke()
     }
     // ----------------
@@ -386,7 +370,7 @@ class LD48 {
       const rotation = Math.atan2(distY, distX)
       
       if (distFromHero < ACCEPTABLE_INPUT_DISTANCE_FROM_HERO) {
-        this.playerAction = PLAYER_ACTIONS.PULLING
+        this.playerAction = PLAYER_ACTIONS.POINTER_DOWN
         this.playerInput.pointerStart = coords
         this.playerInput.pointerCurrent = coords
       }
@@ -405,7 +389,7 @@ class LD48 {
   onPointerUp (e) {
     const coords = getEventCoords(e, this.html.canvas)
     
-    if (this.playerAction === PLAYER_ACTIONS.PULLING) {
+    if (this.playerAction === PLAYER_ACTIONS.POINTER_DOWN) {
       this.playerInput.pointerEnd = coords
       this.playerAction = PLAYER_ACTIONS.IDLE
       /* this.shoot() */

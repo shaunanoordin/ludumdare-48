@@ -44,15 +44,15 @@ export default class Levels {
   generate_default () {
     const app = this._app
     
-    app.hero = new Hero(app, 11, 3)
+    app.hero = new Hero(app, 11, 7)
     app.entities.push(app.hero)
     app.camera.target = app.hero
     
     app.entities.push(new Goal(app, 19, 3))
     
-    app.entities.push(new Wall(app, 0, 0, 1, 7))  // West Wall
-    app.entities.push(new Wall(app, 22, 0, 1, 7))  // East Wall
+    app.entities.push(new Wall(app, 0, 0, 1, 15))  // West Wall
+    app.entities.push(new Wall(app, 22, 0, 1, 15))  // East Wall
     app.entities.push(new Wall(app, 1, 0, 21, 1))  // North Wall
-    app.entities.push(new Wall(app, 1, 6, 21, 1))  // South Wall
+    app.entities.push(new Wall(app, 1, 14, 21, 1))  // South Wall
   }
 }

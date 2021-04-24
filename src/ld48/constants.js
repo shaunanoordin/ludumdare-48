@@ -32,7 +32,7 @@ export const DIRECTIONS = {
 
 export const PLAYER_ACTIONS = {
   IDLE: 'idle',  // Player isn't doing anything
-  PULLING: 'pulling',  // Player is actively interacting with the canvas, pulling the 'ball' to be launched.
+  POINTER_DOWN: 'pointer down',  // Player is actively interacting with the canvas.
 }
 
 /*
