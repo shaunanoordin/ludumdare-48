@@ -4,7 +4,6 @@ import {
   ACCEPTABLE_INPUT_DISTANCE_FROM_HERO,
   VICTORY_ANIMATION_TIME,
   PAUSE_AFTER_VICTORY_ANIMATION,
-  IDLE_TIME_UNTIL_INSTRUCTIONS,
   MAX_PULL_DISTANCE,
 } from './constants'
 import Physics from './physics'
@@ -45,18 +44,9 @@ class LD48 {
     this.setupUI()
     
     this.initialised = false
-    this.assets = {
-      /*
-      goal: new ImageAsset('assets/goal.png'),
-      hero: new ImageAsset('assets/hero.png'),
-      instructions: new ImageAsset('assets/instructions.png'),
-      splash: new ImageAsset('assets/splash.png'),
-      coin: new ImageAsset('assets/coin.png'),
-      */
-    }
+    this.assets = {}
     
     this.hero = null
-    this.instructions = null
     this.entities = []
     this.levels = new Levels(this)
     
@@ -74,7 +64,6 @@ class LD48 {
     
     this.victory = false
     this.victoryCountdown = 0
-    this.instructionsCountdown = IDLE_TIME_UNTIL_INSTRUCTIONS
     this.score = 0
 
     this.prevTime = null
@@ -104,7 +93,6 @@ class LD48 {
     if (allAssetsLoaded) {
       this.initialised = true
       this.showUI()
-      this.updateLevelsList()
       this.levels.load(STARTING_LEVEL)
     }
   }
@@ -144,6 +132,7 @@ class LD48 {
     // Victory check!
     // ----------------
     if (this.victory && this.victoryCountdown <= 0) {
+      console.log('VICTORY')
       this.setMenu(true)
     }
     
@@ -152,22 +141,6 @@ class LD48 {
     }
     // ----------------
     
-    // Instructions check!
-    // ----------------
-    if (this.instructions && !this.victory) {
-      if (this?.hero.movementSpeed > 0 || this.playerAction === PLAYER_ACTIONS.PULLING) {
-        // If the hero is moving or being interacted with, hide the instructions.
-        this.instructionsCountdown = IDLE_TIME_UNTIL_INSTRUCTIONS
-          
-      } else if (this.instructionsCountdown > 0) {
-        this.instructionsCountdown = Math.max(0, this.instructionsCountdown - timeStep)
-        if (this.instructionsCountdown === 0) {
-          this.instructions.animationCounter = 0  // Reset the animation counter for a smoother animation
-        }
-      }
-    }
-    // ----------------
-          
     // Increment the duration of each currently pressed key
     Object.keys(this.playerInput.keysPressed).forEach(key => {
       if (this.playerInput.keysPressed[key]) this.playerInput.keysPressed[key].duration += timeStep
@@ -386,31 +359,6 @@ class LD48 {
     this.html.menu.style.left = `${canvasBounds.left}px`
   }
   
-  updateLevelsList () {
-    const list = this.html.levelsList
-    while (list.firstChild) { list.removeChild(list.firstChild) }
-    for (let i = 0 ; i < this.levels.levelGenerators.length ; i++) {
-      const row = document.createElement('div')
-      
-      const button = document.createElement('button')
-      button.textContent = `Level ${i + 1}`
-      button.addEventListener('click', () => {
-        this.levels.load(i)
-        this.setMenu(false)
-      })
-
-      const info = document.createElement('span')
-      const highScore = this.levels.highScores[i]
-      info.textContent = (highScore === undefined || highScore === null)
-        ? 'new'
-        : `best score: ${highScore}`
-      
-      row.append(button)
-      row.append(info)
-      list.appendChild(row)
-    }
-  }
-  
   setMenu (menu) {
     this.menu = menu
     if (menu) {
@@ -451,10 +399,6 @@ class LD48 {
     const coords = getEventCoords(e, this.html.canvas)
     this.playerInput.pointerCurrent = coords
     
-    if (this.playerAction === PLAYER_ACTIONS.PULLING) {
-      // ...
-    }
-    
     return stopEvent(e)
   }
   
@@ -464,7 +408,7 @@ class LD48 {
     if (this.playerAction === PLAYER_ACTIONS.PULLING) {
       this.playerInput.pointerEnd = coords
       this.playerAction = PLAYER_ACTIONS.IDLE
-      this.shoot()
+      /* this.shoot() */
     }
     
     return stopEvent(e)
@@ -511,6 +455,7 @@ class LD48 {
    */
   
   shoot () {
+    /*
     if (!this.hero || !this.playerInput.pointerCurrent) return
     
     const camera = this.camera
@@ -532,16 +477,13 @@ class LD48 {
     
     this.hero.speedX = Math.cos(rotation) * movementSpeed
     this.hero.speedY = Math.sin(rotation) * movementSpeed
-
-    this.score--  // Each shot reduces the score
+    */
   }
 
   celebrateVictory () {
     if (this.victory) return
     this.victory = true
     this.victoryCountdown = VICTORY_ANIMATION_TIME + PAUSE_AFTER_VICTORY_ANIMATION
-    this.levels.registerScore(this.score)
-    this.updateLevelsList()
   }
     
   /*

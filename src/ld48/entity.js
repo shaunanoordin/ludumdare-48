@@ -25,8 +25,8 @@ class Entity {
     this.movable = true
     this.mass = 2  // Only matters if solid && movable
     
-    // this.moveAcceleration = 0.5
-    this.moveDeceleration = 0.5
+    // this.moveAcceleration = 2
+    this.moveDeceleration = 16
     this.moveMaxSpeed = 16
     
     this.colour = '#ccc'
