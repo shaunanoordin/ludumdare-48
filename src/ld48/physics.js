@@ -278,6 +278,8 @@ export default class Physics {
       || (objA.mass + objB.mass) === 0
     ) return null
     
+    // TODO: change movementSpeed to pushSpeed and moveSpeed
+    
     const collisionAngle = Math.atan2(objB.y - objA.y, objB.x - objA.x)
     const ANGLE_90 = Math.PI / 2
     const totalMass = objA.mass + objB.mass

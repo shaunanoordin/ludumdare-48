@@ -24,10 +24,10 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
-  play_physics_deceleration (timeStep) {
+  play_move_deceleration (timeStep) {
     // Don't decelerate if moving
     if (this.action?.name !== 'move') {
-      super.play_physics_deceleration (timeStep)
+      super.play_move_deceleration (timeStep)
     }
   }
   
@@ -61,15 +61,22 @@ class Hero extends Entity {
     
     const action = this.action
     
-    if (action.name === 'move') {
+    if (action.name === 'idle') {
+      
+      // Idle
+      
+    } else if (action.name === 'move') {
+      
       const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
-      const actionRotation = Math.atan2(action.attr?.moveY || 0, action.attr?.moveX || 0)
+      const attrMoveX = action.attr?.moveX || 0
+      const attrMoveY = action.attr?.moveY || 0
+      const actionRotation = Math.atan2(attrMoveY, attrMoveX)
       let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
       let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
 
       // Limit max speed
       if (this.moveMaxSpeed >= 0) {
-        const moveMaxSpeed = this.moveMaxSpeed;
+        const moveMaxSpeed = this.moveMaxSpeed
         const correctedSpeed = Math.min(moveMaxSpeed, Math.sqrt(moveX * moveX + moveY * moveY))
         const moveRotation = Math.atan2(moveY, moveX)
         moveX = correctedSpeed * Math.cos(moveRotation)
@@ -81,6 +88,19 @@ class Hero extends Entity {
       this.rotation = actionRotation
       
       action.counter += timeStep
+      
+    } else if (action.name === 'dash') {
+      const duration = 2000
+      const progress = action.counter / duration
+      
+      if (progress < 0.5) {
+        this.pushX += 2
+      }
+      
+      
+      action.counter += timeStep
+      
+      if (action.counter >= duration) this.goIdle()
     }
   }
   

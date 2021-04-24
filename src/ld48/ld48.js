@@ -273,7 +273,18 @@ class LD48 {
       if (keysPressed['ArrowLeft']) moveX--
       if (keysPressed['ArrowUp']) moveY--
       
-      if (moveX || moveY) {
+      if (
+        (keysPressed['x'] && !keysPressed['x'].acknowledged)
+        || (keysPressed['X'] && !keysPressed['X'].acknowledged)
+      ) {
+        intent = {
+          name: 'dash',
+          attr: { moveX, moveY },
+        }
+        if (keysPressed['x']) keysPressed['x'].acknowledged = true
+        if (keysPressed['X']) keysPressed['X'].acknowledged = true
+      
+      } else if (moveX || moveY) {
         intent = {
           name: 'move',
           attr: { moveX, moveY },

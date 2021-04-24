@@ -29,6 +29,8 @@ class Entity {
     this.moveAcceleration = AGI * this.size * 16
     this.moveDeceleration = AGI * this.size * 16
     this.moveMaxSpeed = AGI * this.size
+    this.pushDeceleration = this.size
+    this.pushMaxSpeed = 2 * this.size
     
     this.colour = '#ccc'
     this.animationCounter = 0
@@ -38,11 +40,12 @@ class Entity {
   play (timeStep) {
     // Update position
     const timeCorrection = (timeStep / EXPECTED_TIMESTEP)
-    this.x += this.moveX * timeCorrection
-    this.y += this.moveY * timeCorrection
+    this.x += (this.moveX + this.pushX) * timeCorrection
+    this.y += (this.moveY + this.pushY) * timeCorrection
     
     // Upkeep: deceleration
-    this.play_physics_deceleration(timeStep)
+    this.play_move_deceleration(timeStep)
+    this.play_push_deceleration(timeStep)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
@@ -50,14 +53,22 @@ class Entity {
     }
   }
   
-  play_physics_deceleration (timeStep) {
+  play_move_deceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
     const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
     const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
-    
     this.moveX = newMoveSpeed * Math.cos(curRotation)
     this.moveY = newMoveSpeed * Math.sin(curRotation)
+  }
+  
+  play_push_deceleration (timeStep) {
+    const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
+    const curRotation = Math.atan2(this.pushY, this.pushX)
+    const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+    const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
+    this.pushX = newPushSpeed * Math.cos(curRotation)
+    this.pushY = newPushSpeed * Math.sin(curRotation)
   }
   
   paint () {
@@ -179,6 +190,8 @@ class Entity {
     }
     return v
   }
+  
+  // TODO: change movementSpeed to pushSpeed and moveSpeed
   
   get movementSpeed () {
     return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
