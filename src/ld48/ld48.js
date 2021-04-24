@@ -266,9 +266,8 @@ class LD48 {
   
   processPlayerInput (timeStep) {
     if (this.hero) {
-      // playerActor.intent = undefined;
-      
       const keysPressed = this.playerInput.keysPressed
+      let intent = undefined
       let moveX = 0
       let moveY = 0
       
@@ -278,8 +277,12 @@ class LD48 {
       if (keysPressed['ArrowUp']) moveY--
       
       if (moveX || moveY) {
-        this.hero.moveX = 10 * moveX
-        this.hero.moveY = 10 * moveY
+        // this.hero.moveX = 10 * moveX
+        // this.hero.moveY = 10 * moveY
+        this.hero.intent = {
+          name: 'move',
+          attr: { moveX, moveY },
+        }
       }
     }
   }
