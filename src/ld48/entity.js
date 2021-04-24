@@ -26,8 +26,8 @@ class Entity {
     this.mass = 2  // Only matters if solid && movable
     
     const AGI = 0.25
-    this.moveAcceleration = AGI * this.size * 4
-    this.moveDeceleration = AGI * this.size * 4
+    this.moveAcceleration = AGI * this.size * 16
+    this.moveDeceleration = AGI * this.size * 16
     this.moveMaxSpeed = AGI * this.size
     
     this.colour = '#ccc'
