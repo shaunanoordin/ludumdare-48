@@ -74,15 +74,6 @@ class Hero extends Entity {
       let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
       let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
 
-      // Limit max speed
-      if (this.moveMaxSpeed >= 0) {
-        const moveMaxSpeed = this.moveMaxSpeed
-        const correctedSpeed = Math.min(moveMaxSpeed, Math.sqrt(moveX * moveX + moveY * moveY))
-        const moveRotation = Math.atan2(moveY, moveX)
-        moveX = correctedSpeed * Math.cos(moveRotation)
-        moveY = correctedSpeed * Math.sin(moveRotation)
-      }
-
       this.moveX = moveX
       this.moveY = moveY
       this.rotation = actionRotation
@@ -138,24 +129,6 @@ class Hero extends Entity {
     const tgtSizeY = SPRITE_SIZE * 1.25
     const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
     const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
-
-    if (this.movementSpeed) {
-      const animationProgress = (this.animationCounter % (this.animationCounterMax / 3)) / (this.animationCounterMax / 3)
-      if (animationProgress < 0.5) {
-        srcY = 2 * SPRITE_SIZE
-      } else {
-        srcY = 3 * SPRITE_SIZE
-      }
-    } else {
-      const animationProgress = this.animationCounter / this.animationCounterMax
-      if (animationProgress < 0.5) {
-        srcY = 0
-      } else {
-        srcY = SPRITE_SIZE
-      }
-    }
-
-    srcX = (this.moveX < 0) ? 0 : SPRITE_SIZE
 
     c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
   }

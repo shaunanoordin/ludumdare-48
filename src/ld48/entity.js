@@ -30,7 +30,7 @@ class Entity {
     this.moveDeceleration = AGI * this.size * 16
     this.moveMaxSpeed = AGI * this.size
     this.pushDeceleration = this.size
-    this.pushMaxSpeed = 2 * this.size
+    this.pushMaxSpeed = AGI * this.size
     
     this.colour = '#ccc'
     this.animationCounter = 0
@@ -46,6 +46,9 @@ class Entity {
     // Upkeep: deceleration
     this.play_move_deceleration(timeStep)
     this.play_push_deceleration(timeStep)
+    
+    // Upkeep: limit speed
+    this.play_maxSpeed(timeStep)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
@@ -69,6 +72,24 @@ class Entity {
     const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
     this.pushX = newPushSpeed * Math.cos(curRotation)
     this.pushY = newPushSpeed * Math.sin(curRotation)
+  }
+  
+  play_maxSpeed (timeStep) {
+    // Limit max move speed
+    if (this.moveMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.moveMaxSpeed, this.moveSpeed)
+      const moveAngle = this.moveAngle
+      this.moveX = correctedSpeed * Math.cos(moveAngle)
+      this.moveY = correctedSpeed * Math.sin(moveAngle)
+    }
+    
+    // Limit max push speed
+    if (this.pushMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.pushMaxSpeed, this.pushSpeed)
+      const pushAngle = this.pushAngle
+      this.pushX = correctedSpeed * Math.cos(pushAngle)
+      this.pushY = correctedSpeed * Math.sin(pushAngle)
+    }
   }
   
   paint () {
@@ -191,14 +212,20 @@ class Entity {
     return v
   }
   
-  // TODO: change movementSpeed to pushSpeed and moveSpeed
-  
-  get movementSpeed () {
+  get moveSpeed () {
     return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
   }
   
-  get movementAngle () {
+  get moveAngle () {
     return Math.atan2(this.moveY, this.moveX)
+  }
+  
+  get pushSpeed () {
+    return Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+  }
+  
+  get pushAngle () {
+    return Math.atan2(this.pushY, this.pushX)
   }
 }
 

@@ -224,7 +224,7 @@ class LD48 {
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
 
-      const text = this.hero?.action?.name + ' - ' + this.hero?.movementSpeed?.toFixed()
+      const text = this.hero?.action?.name + ' - ' + this.hero?.moveSpeed?.toFixed() + ' - ' + this.hero?.pushSpeed?.toFixed()
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
