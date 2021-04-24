@@ -24,6 +24,13 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
+  play_physics_deceleration (timeStep) {
+    // Don't decelerate if moving
+    if (this.action?.name !== 'move') {
+      super.play_physics_deceleration (timeStep)
+    }
+  }
+  
   /*
   Translate intent into action.
    */
@@ -60,6 +67,7 @@ class Hero extends Entity {
       let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
       let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
 
+      // Limit max speed
       if (this.moveMaxSpeed >= 0) {
         const moveMaxSpeed = this.moveMaxSpeed;
         const correctedSpeed = Math.min(moveMaxSpeed, Math.sqrt(moveX * moveX + moveY * moveY))

@@ -215,7 +215,7 @@ class LD48 {
     }
     // ----------------
 
-    // Draw score
+    // Draw UI data
     // ----------------
     if (!this.victory) {
       const X_OFFSET = TILE_SIZE * 2.5
@@ -223,18 +223,13 @@ class LD48 {
       c2d.font = '3em Source Code Pro'
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
-      
-      c2d.textAlign = 'right'
-      c2d.strokeStyle = '#fff'
-      c2d.strokeText(`${this.score} points`, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
-      c2d.fillStyle = '#c44'
-      c2d.fillText(`${this.score} points`, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
-      
+
+      const text = this.hero?.action?.name + ' - ' + this.hero?.movementSpeed?.toFixed()
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
-      c2d.strokeText(`Level ${this.levels.current + 1}`, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
       c2d.fillStyle = '#c44'
-      c2d.fillText(`Level ${this.levels.current + 1}`, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.fillText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
     }
     // ----------------
     
@@ -251,6 +246,7 @@ class LD48 {
       c2d.textAlign = 'center'
       c2d.strokeStyle = '#fff'
       
+      /*
       c2d.font = `${fontSize1}em Source Code Pro`
       c2d.textBaseline = 'bottom'
       c2d.fillText('Nice!', APP_WIDTH / 2, APP_HEIGHT / 2 - VERTICAL_OFFSET)
@@ -260,6 +256,7 @@ class LD48 {
       c2d.textBaseline = 'top'
       c2d.fillText(`${this.score} points`, APP_WIDTH / 2, APP_HEIGHT / 2 + VERTICAL_OFFSET)
       c2d.strokeText(`${this.score} points`, APP_WIDTH / 2, APP_HEIGHT / 2 + VERTICAL_OFFSET)
+      */
     }
     // ----------------
   }
@@ -277,13 +274,16 @@ class LD48 {
       if (keysPressed['ArrowUp']) moveY--
       
       if (moveX || moveY) {
+        console.log(moveX, moveY)
         // this.hero.moveX = 10 * moveX
         // this.hero.moveY = 10 * moveY
-        this.hero.intent = {
+        intent = {
           name: 'move',
           attr: { moveX, moveY },
         }
       }
+  
+      this.hero.intent = intent
     }
   }
   

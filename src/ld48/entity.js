@@ -25,9 +25,10 @@ class Entity {
     this.movable = true
     this.mass = 2  // Only matters if solid && movable
     
-    this.moveAcceleration = 16
-    this.moveDeceleration = 1
-    this.moveMaxSpeed = 16
+    const AGI = 0.25
+    this.moveAcceleration = AGI * this.size * 4
+    this.moveDeceleration = AGI * this.size * 4
+    this.moveMaxSpeed = AGI * this.size
     
     this.colour = '#ccc'
     this.animationCounter = 0
@@ -41,18 +42,22 @@ class Entity {
     this.y += this.moveY * timeCorrection
     
     // Upkeep: deceleration
-    const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
-    const curRotation = Math.atan2(this.moveY, this.moveX)
-    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
-    const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
-
-    this.moveX = newMoveSpeed * Math.cos(curRotation)
-    this.moveY = newMoveSpeed * Math.sin(curRotation)
+    this.play_physics_deceleration(timeStep)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
       this.animationCounter = (this.animationCounter + timeStep) % this.animationCounterMax
     }
+  }
+  
+  play_physics_deceleration (timeStep) {
+    const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
+    const curRotation = Math.atan2(this.moveY, this.moveX)
+    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
+    const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
+    
+    this.moveX = newMoveSpeed * Math.cos(curRotation)
+    this.moveY = newMoveSpeed * Math.sin(curRotation)
   }
   
   paint () {
