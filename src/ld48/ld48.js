@@ -419,6 +419,7 @@ class LD48 {
     } else {
       this.html.menu.style.visibility = 'hidden'
       this.html.buttonReload.style.visibility = 'visible'
+      this.html.main.focus()
     }
   }
   
@@ -470,7 +471,6 @@ class LD48 {
   }
   
   onKeyDown (e) {
-    console.log('+++ keydown', e)
     if (!this.playerInput.keysPressed[e.key]) {
       this.playerInput.keysPressed[e.key] = {
         duration: 0,
