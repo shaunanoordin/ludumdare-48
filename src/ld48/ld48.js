@@ -274,9 +274,6 @@ class LD48 {
       if (keysPressed['ArrowUp']) moveY--
       
       if (moveX || moveY) {
-        console.log(moveX, moveY)
-        // this.hero.moveX = 10 * moveX
-        // this.hero.moveY = 10 * moveY
         intent = {
           name: 'move',
           attr: { moveX, moveY },
@@ -378,6 +375,8 @@ class LD48 {
         this.playerInput.pointerCurrent = coords
       }
     }
+    
+    this.html.main.focus()
     
     return stopEvent(e)
   }

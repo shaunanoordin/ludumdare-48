@@ -54,5 +54,8 @@ export default class Levels {
     app.entities.push(new Wall(app, 22, 0, 1, 15))  // East Wall
     app.entities.push(new Wall(app, 1, 0, 21, 1))  // North Wall
     app.entities.push(new Wall(app, 1, 14, 21, 1))  // South Wall
+    
+    app.entities.push(new Wall(app, 3, 2, 3, 1))
+    app.entities.push(new Wall(app, 3, 4, 3, 1))
   }
 }
