@@ -278,8 +278,8 @@ class LD48 {
       if (keysPressed['ArrowUp']) moveY--
       
       if (moveX || moveY) {
-        this.hero.speedX = 10 * moveX
-        this.hero.speedY = 10 * moveY
+        this.hero.moveX = 10 * moveX
+        this.hero.moveY = 10 * moveY
       }
     }
   }
@@ -392,7 +392,6 @@ class LD48 {
     if (this.playerAction === PLAYER_ACTIONS.POINTER_DOWN) {
       this.playerInput.pointerEnd = coords
       this.playerAction = PLAYER_ACTIONS.IDLE
-      /* this.shoot() */
     }
     
     return stopEvent(e)
@@ -438,32 +437,6 @@ class LD48 {
   ----------------------------------------------------------------------------
    */
   
-  shoot () {
-    /*
-    if (!this.hero || !this.playerInput.pointerCurrent) return
-    
-    const camera = this.camera
-    
-    const inputCoords = this.playerInput.pointerCurrent
-    const directionX = this.hero.x - inputCoords.x + camera.x
-    const directionY = this.hero.y - inputCoords.y + camera.y
-    const dist = Math.sqrt(directionX * directionX + directionY * directionY)
-    const rotation = Math.atan2(directionY, directionX)
-
-    const intendedMovement = dist / MAX_PULL_DISTANCE * this.hero.moveMaxSpeed
-    const movementSpeed = Math.min(
-      intendedMovement,
-      this.hero.moveMaxSpeed
-    )
-    
-    console.log('MOVEMENT SPEED: ', movementSpeed)
-    console.log('STARTING COORDS: ' + this.hero.x + ' , ' + this.hero.y)  // using template strings here messes up colours in Brackets.
-    
-    this.hero.speedX = Math.cos(rotation) * movementSpeed
-    this.hero.speedY = Math.sin(rotation) * movementSpeed
-    */
-  }
-
   celebrateVictory () {
     if (this.victory) return
     this.victory = true

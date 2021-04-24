@@ -14,8 +14,8 @@ class Entity {
     this._rotation = ROTATIONS.SOUTH  // Rotation in radians
     
     // Movement: self locomotion and external (pushed) movement.
-    this.speedX = 0
-    this.speedY = 0
+    this.moveX = 0
+    this.moveY = 0
     this.pushX = 0
     this.pushY = 0
     
@@ -37,17 +37,17 @@ class Entity {
   play (timeStep) {
     // Update position
     const timeCorrection = (timeStep / EXPECTED_TIMESTEP)
-    this.x += this.speedX * timeCorrection
-    this.y += this.speedY * timeCorrection
+    this.x += this.moveX * timeCorrection
+    this.y += this.moveY * timeCorrection
     
     // Upkeep: deceleration
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
-    const curRotation = Math.atan2(this.speedY, this.speedX)
-    const curMoveSpeed = Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY)
+    const curRotation = Math.atan2(this.moveY, this.moveX)
+    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
     const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
 
-    this.speedX = newMoveSpeed * Math.cos(curRotation)
-    this.speedY = newMoveSpeed * Math.sin(curRotation)
+    this.moveX = newMoveSpeed * Math.cos(curRotation)
+    this.moveY = newMoveSpeed * Math.sin(curRotation)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
@@ -56,20 +56,6 @@ class Entity {
   }
   
   paint () {
-    /*
-    c2d.fillStyle = '#888'
-    if (this.movable && this.solid) {
-      c2d.fillStyle = '#48c'
-    }
-    
-    // DEBUG: Player colours
-    if (this === this._app.hero) {
-      c2d.fillStyle = '#c44'
-      if (this._app.playerAction === PLAYER_ACTIONS.POINTER_DOWN) {
-        c2d.fillStyle = '#e42'
-      }
-    }*/
-    
     this.paint_outline()
   }
   
@@ -190,11 +176,11 @@ class Entity {
   }
   
   get movementSpeed () {
-    return Math.sqrt(this.speedX * this.speedX + this.speedY * this.speedY)
+    return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
   }
   
   get movementAngle () {
-    return Math.atan2(this.speedY, this.speedX)
+    return Math.atan2(this.moveY, this.moveX)
   }
 }
 

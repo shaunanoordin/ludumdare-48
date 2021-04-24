@@ -56,7 +56,7 @@ class Hero extends Entity {
       }
     }
 
-    srcX = (this.speedX < 0) ? 0 : SPRITE_SIZE
+    srcX = (this.moveX < 0) ? 0 : SPRITE_SIZE
 
     c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
   }
