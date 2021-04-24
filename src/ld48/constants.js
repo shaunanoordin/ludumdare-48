@@ -32,7 +32,7 @@ export const DIRECTIONS = {
 
 export const PLAYER_ACTIONS = {
   IDLE: 'idle',  // Player isn't doing anything
-  PULLING: 'pulling',  // Player is actively interacting with the canvas, pulling the 'ball' to be launched.
+  POINTER_DOWN: 'pointer down',  // Player is actively interacting with the canvas.
 }
 
 /*
@@ -47,5 +47,3 @@ export const EXPECTED_TIMESTEP = 1000 / EXPECTED_FRAMES_PER_SECOND
 // Time it takes to play victory animation
 export const VICTORY_ANIMATION_TIME = 500  // milliseconds
 export const PAUSE_AFTER_VICTORY_ANIMATION = 1000 // milliseconds
-
-export const IDLE_TIME_UNTIL_INSTRUCTIONS = 3000 // milliseconds

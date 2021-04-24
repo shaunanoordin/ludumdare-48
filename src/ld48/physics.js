@@ -90,14 +90,14 @@ export default class Physics {
         a: {
           x: objA.x - cosAngle * (correctDist - dist) * fractionA,
           y: objA.y - sinAngle * (correctDist - dist) * fractionA,
-          speedX: motion && motion.a.speedX,
-          speedY: motion && motion.a.speedY,
+          moveX: motion && motion.a.moveX,
+          moveY: motion && motion.a.moveY,
         },
         b: {
           x: objB.x + cosAngle * (correctDist - dist) * fractionB,
           y: objB.y + sinAngle * (correctDist - dist) * fractionB,
-          speedX: motion && motion.b.speedX,
-          speedY: motion && motion.b.speedY,
+          moveX: motion && motion.b.moveX,
+          moveY: motion && motion.b.moveY,
         }
       }
     }
@@ -297,27 +297,27 @@ export default class Physics {
         + 2 * aMass * aSpd * Math.cos(aAng - collisionAngle)
       ) / totalMass
     
-    const objA_speedX =
+    const objA_moveX =
       aGroup * Math.cos(collisionAngle)
       + aSpd * Math.sin(aAng - collisionAngle) * Math.cos(collisionAngle + ANGLE_90)
-    const objA_speedY =
+    const objA_moveY =
       aGroup * Math.sin(collisionAngle)
       + aSpd * Math.sin(aAng - collisionAngle) * Math.sin(collisionAngle + ANGLE_90)
-    const objB_speedX =
+    const objB_moveX =
       bGroup * Math.cos(collisionAngle)
       + bSpd * Math.sin(bAng - collisionAngle) * Math.cos(collisionAngle + ANGLE_90)
-    const objB_speedY =
+    const objB_moveY =
       bGroup * Math.sin(collisionAngle)
       + bSpd * Math.sin(bAng - collisionAngle) * Math.sin(collisionAngle + ANGLE_90)
     
     return {
       a: {
-        speedX: objA_speedX,
-        speedY: objA_speedY,
+        moveX: objA_moveX,
+        moveY: objA_moveY,
       },
       b: {
-        speedX: objB_speedX,
-        speedY: objB_speedY,
+        moveX: objB_moveX,
+        moveY: objB_moveY,
       },
     }
   }

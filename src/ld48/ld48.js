@@ -4,7 +4,6 @@ import {
   ACCEPTABLE_INPUT_DISTANCE_FROM_HERO,
   VICTORY_ANIMATION_TIME,
   PAUSE_AFTER_VICTORY_ANIMATION,
-  IDLE_TIME_UNTIL_INSTRUCTIONS,
   MAX_PULL_DISTANCE,
 } from './constants'
 import Physics from './physics'
@@ -45,29 +44,26 @@ class LD48 {
     this.setupUI()
     
     this.initialised = false
-    this.assets = {
-      goal: new ImageAsset('assets/goal.png'),
-      hero: new ImageAsset('assets/hero.png'),
-      instructions: new ImageAsset('assets/instructions.png'),
-      splash: new ImageAsset('assets/splash.png'),
-      coin: new ImageAsset('assets/coin.png'),
-    }
+    this.assets = {}
     
     this.hero = null
-    this.instructions = null
     this.entities = []
     this.levels = new Levels(this)
     
     this.playerAction = PLAYER_ACTIONS.IDLE
     this.playerInput = {
+      // Mouse/touchscreen input
       pointerStart: undefined,
       pointerCurrent: undefined,
       pointerEnd: undefined,
+      
+      // Keys that are currently being pressed.
+      // keysPressed = { key: { duration, acknowledged } }
+      keysPressed: {},
     }
     
     this.victory = false
     this.victoryCountdown = 0
-    this.instructionsCountdown = IDLE_TIME_UNTIL_INSTRUCTIONS
     this.score = 0
 
     this.prevTime = null
@@ -97,7 +93,6 @@ class LD48 {
     if (allAssetsLoaded) {
       this.initialised = true
       this.showUI()
-      this.updateLevelsList()
       this.levels.load(STARTING_LEVEL)
     }
   }
@@ -137,6 +132,7 @@ class LD48 {
     // Victory check!
     // ----------------
     if (this.victory && this.victoryCountdown <= 0) {
+      console.log('VICTORY')
       this.setMenu(true)
     }
     
@@ -145,21 +141,12 @@ class LD48 {
     }
     // ----------------
     
-    // Instructions check!
-    // ----------------
-    if (this.instructions && !this.victory) {
-      if (this?.hero.movementSpeed > 0 || this.playerAction === PLAYER_ACTIONS.PULLING) {
-        // If the hero is moving or being interacted with, hide the instructions.
-        this.instructionsCountdown = IDLE_TIME_UNTIL_INSTRUCTIONS
+    // Increment the duration of each currently pressed key
+    Object.keys(this.playerInput.keysPressed).forEach(key => {
+      if (this.playerInput.keysPressed[key]) this.playerInput.keysPressed[key].duration += timeStep
+    })
           
-      } else if (this.instructionsCountdown > 0) {
-        this.instructionsCountdown = Math.max(0, this.instructionsCountdown - timeStep)
-        if (this.instructionsCountdown === 0) {
-          this.instructions.animationCounter = 0  // Reset the animation counter for a smoother animation
-        }
-      }
-    }
-    // ----------------
+    this.processPlayerInput()
   }
   
   paint () {
@@ -212,7 +199,7 @@ class LD48 {
     // Draw player input
     // ----------------
     if (
-      this.playerAction === PLAYER_ACTIONS.PULLING
+      this.playerAction === PLAYER_ACTIONS.POINTER_DOWN
       && this.hero
       && this.playerInput.pointerCurrent
     ) {
@@ -223,28 +210,12 @@ class LD48 {
       c2d.lineWidth = TILE_SIZE / 8
       
       c2d.beginPath()
-      c2d.moveTo(this.hero.x + camera.x, this.hero.y + camera.y)
-      c2d.lineTo(inputCoords.x, inputCoords.y)
-      c2d.stroke()
-      c2d.beginPath()
       c2d.arc(inputCoords.x, inputCoords.y, TILE_SIZE, 0, 2 * Math.PI)
-      c2d.stroke()
-      
-      const arrowCoords = {
-        x: this.hero.x - (inputCoords.x - this.hero.x) + camera.x,
-        y: this.hero.y - (inputCoords.y - this.hero.y) + camera.y,
-      }
-      c2d.strokeStyle = '#e42'
-      c2d.lineWidth = TILE_SIZE / 8
-      
-      c2d.beginPath()
-      c2d.moveTo(this.hero.x + camera.x, this.hero.y + camera.y)
-      c2d.lineTo(arrowCoords.x + camera.x, arrowCoords.y + camera.y)
       c2d.stroke()
     }
     // ----------------
 
-    // Draw score
+    // Draw UI data
     // ----------------
     if (!this.victory) {
       const X_OFFSET = TILE_SIZE * 2.5
@@ -252,18 +223,13 @@ class LD48 {
       c2d.font = '3em Source Code Pro'
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
-      
-      c2d.textAlign = 'right'
-      c2d.strokeStyle = '#fff'
-      c2d.strokeText(`${this.score} points`, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
-      c2d.fillStyle = '#c44'
-      c2d.fillText(`${this.score} points`, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
-      
+
+      const text = this.hero?.action?.name + ' - ' + this.hero?.movementSpeed?.toFixed()
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
-      c2d.strokeText(`Level ${this.levels.current + 1}`, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
       c2d.fillStyle = '#c44'
-      c2d.fillText(`Level ${this.levels.current + 1}`, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.fillText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
     }
     // ----------------
     
@@ -280,6 +246,7 @@ class LD48 {
       c2d.textAlign = 'center'
       c2d.strokeStyle = '#fff'
       
+      /*
       c2d.font = `${fontSize1}em Source Code Pro`
       c2d.textBaseline = 'bottom'
       c2d.fillText('Nice!', APP_WIDTH / 2, APP_HEIGHT / 2 - VERTICAL_OFFSET)
@@ -289,8 +256,32 @@ class LD48 {
       c2d.textBaseline = 'top'
       c2d.fillText(`${this.score} points`, APP_WIDTH / 2, APP_HEIGHT / 2 + VERTICAL_OFFSET)
       c2d.strokeText(`${this.score} points`, APP_WIDTH / 2, APP_HEIGHT / 2 + VERTICAL_OFFSET)
+      */
     }
     // ----------------
+  }
+  
+  processPlayerInput (timeStep) {
+    if (this.hero) {
+      const keysPressed = this.playerInput.keysPressed
+      let intent = undefined
+      let moveX = 0
+      let moveY = 0
+      
+      if (keysPressed['ArrowRight']) moveX++
+      if (keysPressed['ArrowDown']) moveY++
+      if (keysPressed['ArrowLeft']) moveX--
+      if (keysPressed['ArrowUp']) moveY--
+      
+      if (moveX || moveY) {
+        intent = {
+          name: 'move',
+          attr: { moveX, moveY },
+        }
+      }
+  
+      this.hero.intent = intent
+    }
   }
   
   /*
@@ -323,9 +314,14 @@ class LD48 {
     this.html.buttonFullscreen.addEventListener('click', this.buttonFullscreen_onClick.bind(this))
     this.html.buttonReload.addEventListener('click', this.buttonReload_onClick.bind(this))
     
+    this.html.main.addEventListener('keydown', this.onKeyDown.bind(this))
+    this.html.main.addEventListener('keyup', this.onKeyUp.bind(this))
+    
     window.addEventListener('resize', this.updateUI.bind(this))
     this.updateUI()
     this.hideUI()  // Hide until all assets are loaded
+    
+    this.html.main.focus()
   }
   
   hideUI () {
@@ -347,31 +343,6 @@ class LD48 {
     this.html.menu.style.left = `${canvasBounds.left}px`
   }
   
-  updateLevelsList () {
-    const list = this.html.levelsList
-    while (list.firstChild) { list.removeChild(list.firstChild) }
-    for (let i = 0 ; i < this.levels.levelGenerators.length ; i++) {
-      const row = document.createElement('div')
-      
-      const button = document.createElement('button')
-      button.textContent = `Level ${i + 1}`
-      button.addEventListener('click', () => {
-        this.levels.load(i)
-        this.setMenu(false)
-      })
-
-      const info = document.createElement('span')
-      const highScore = this.levels.highScores[i]
-      info.textContent = (highScore === undefined || highScore === null)
-        ? 'new'
-        : `best score: ${highScore}`
-      
-      row.append(button)
-      row.append(info)
-      list.appendChild(row)
-    }
-  }
-  
   setMenu (menu) {
     this.menu = menu
     if (menu) {
@@ -380,6 +351,7 @@ class LD48 {
     } else {
       this.html.menu.style.visibility = 'hidden'
       this.html.buttonReload.style.visibility = 'visible'
+      this.html.main.focus()
     }
   }
   
@@ -398,11 +370,13 @@ class LD48 {
       const rotation = Math.atan2(distY, distX)
       
       if (distFromHero < ACCEPTABLE_INPUT_DISTANCE_FROM_HERO) {
-        this.playerAction = PLAYER_ACTIONS.PULLING
+        this.playerAction = PLAYER_ACTIONS.POINTER_DOWN
         this.playerInput.pointerStart = coords
         this.playerInput.pointerCurrent = coords
       }
     }
+    
+    this.html.main.focus()
     
     return stopEvent(e)
   }
@@ -411,23 +385,31 @@ class LD48 {
     const coords = getEventCoords(e, this.html.canvas)
     this.playerInput.pointerCurrent = coords
     
-    if (this.playerAction === PLAYER_ACTIONS.PULLING) {
-      // ...
-    }
-    
     return stopEvent(e)
   }
   
   onPointerUp (e) {
     const coords = getEventCoords(e, this.html.canvas)
     
-    if (this.playerAction === PLAYER_ACTIONS.PULLING) {
+    if (this.playerAction === PLAYER_ACTIONS.POINTER_DOWN) {
       this.playerInput.pointerEnd = coords
       this.playerAction = PLAYER_ACTIONS.IDLE
-      this.shoot()
     }
     
     return stopEvent(e)
+  }
+  
+  onKeyDown (e) {
+    if (!this.playerInput.keysPressed[e.key]) {
+      this.playerInput.keysPressed[e.key] = {
+        duration: 0,
+        acknowledged: false,
+      }
+    }
+  }
+  
+  onKeyUp (e) {
+    this.playerInput.keysPressed[e.key] = undefined
   }
   
   buttonHome_onClick () {
@@ -457,38 +439,10 @@ class LD48 {
   ----------------------------------------------------------------------------
    */
   
-  shoot () {
-    if (!this.hero || !this.playerInput.pointerCurrent) return
-    
-    const camera = this.camera
-    
-    const inputCoords = this.playerInput.pointerCurrent
-    const directionX = this.hero.x - inputCoords.x + camera.x
-    const directionY = this.hero.y - inputCoords.y + camera.y
-    const dist = Math.sqrt(directionX * directionX + directionY * directionY)
-    const rotation = Math.atan2(directionY, directionX)
-
-    const intendedMovement = dist / MAX_PULL_DISTANCE * this.hero.moveMaxSpeed
-    const movementSpeed = Math.min(
-      intendedMovement,
-      this.hero.moveMaxSpeed
-    )
-    
-    console.log('MOVEMENT SPEED: ', movementSpeed)
-    console.log('STARTING COORDS: ' + this.hero.x + ' , ' + this.hero.y)  // using template strings here messes up colours in Brackets.
-    
-    this.hero.speedX = Math.cos(rotation) * movementSpeed
-    this.hero.speedY = Math.sin(rotation) * movementSpeed
-
-    this.score--  // Each shot reduces the score
-  }
-
   celebrateVictory () {
     if (this.victory) return
     this.victory = true
     this.victoryCountdown = VICTORY_ANIMATION_TIME + PAUSE_AFTER_VICTORY_ANIMATION
-    this.levels.registerScore(this.score)
-    this.updateLevelsList()
   }
     
   /*
