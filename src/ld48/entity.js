@@ -152,8 +152,61 @@ class Entity {
   }
   
   onCollision (target, collisionCorrection) {
+    this.doBounds(target, collisionCorrection)
     this.x = collisionCorrection.x
     this.y = collisionCorrection.y
+  }
+  
+  doBounds (target, collisionCorrection) {
+    if (
+      this.movable && this.solid
+      && !target.movable && target.solid
+    ) {
+      if (
+        this.shape === SHAPES.CIRCLE && target.shape === SHAPES.CIRCLE
+      ) {
+        
+        // For circle + circle collisions, the collision correction already
+        // tells us the bounce direction.
+        const angle = Math.atan2(collisionCorrection.y - this.y, collisionCorrection.x - this.x)
+        const speed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+
+        this.pushX = Math.cos(angle) * speed
+        this.pushY = Math.sin(angle) * speed
+
+      } else if (
+        this.shape === SHAPES.CIRCLE
+        && (target.shape === SHAPES.SQUARE || target.shape === SHAPES.POLYGON)
+      ) {
+        
+        // For circle + polygon collisions, we need to know...
+        // - the original angle this circle was moving towards (or rather, its
+        //   reverse, because we want a bounce)
+        // - the normal vector (of the edge) of the polygon this circle collided
+        //   into (which we can get from the collision correction)
+        // - the angle between them
+        const reverseOriginalAngle = Math.atan2(-this.pushY, -this.pushX)
+        const normalAngle = Math.atan2(collisionCorrection.y - this.y, collisionCorrection.x - this.x)
+        const angleBetween = normalAngle - reverseOriginalAngle
+        const angle = reverseOriginalAngle + 2 * angleBetween
+
+        const speed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+
+        this.pushX = Math.cos(angle) * speed
+        this.pushY = Math.sin(angle) * speed
+        
+      } else {
+        // For the moment, we're not too concerned about polygons bumping into each other
+      }
+    } else if (
+      this.movable && this.solid
+      && target.movable && target.solid
+      && collisionCorrection.pushX !== undefined
+      && collisionCorrection.pushY !== undefined
+    ) {
+      this.pushX = collisionCorrection.pushX
+      this.pushY = collisionCorrection.pushY
+    }
   }
   
   get left () { return this.x - this.size / 2 }
