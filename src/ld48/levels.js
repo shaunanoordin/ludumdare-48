@@ -44,7 +44,7 @@ export default class Levels {
   generate_default () {
     const app = this._app
     
-    app.hero = new Hero(app, 11, 7)
+    app.hero = new Hero(app, 11, 1)
     app.entities.push(app.hero)
     app.camera.target = app.hero
     

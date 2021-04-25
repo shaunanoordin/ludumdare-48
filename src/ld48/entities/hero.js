@@ -81,17 +81,32 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const duration = 2000
+      const duration = 4  // Time in frames, not seconds. (Seconds seems inconsistent.)
       const progress = action.counter / duration
       
-      if (progress < 0.5) {
-        this.pushX += 2
+      if (!this.action.attr.acknowledged) {
+        const moveX = action.attr.moveX  || 0
+        const moveY = action.attr.moveY  || 0
+        this.rotation = (action.attr.moveX === 0 && action.attr.moveY === 0)
+          ? this.rotation
+          : Math.atan2(moveY, moveX)
+        action.attr.acknowledged = true
+        action.attr.rotation = this.rotation
       }
       
+      if (action.attr.rotation !== undefined) {
+        const PUSH_POWER = 6 * this.size * timeStep / 1000
+        this.pushX += PUSH_POWER  * Math.cos(action.attr.rotation)
+        this.pushY += PUSH_POWER * Math.sin(action.attr.rotation)
+        console.log('Dash: ', PUSH_POWER, timeStep)
+      }
+    
+      action.counter += 1
       
-      action.counter += timeStep
-      
-      if (action.counter >= duration) this.goIdle()
+      if (action.counter >= duration) {  // Time in frames, not seconds
+        console.log('Dash ended at: ', action.counter)
+        this.goIdle()
+      }
     }
   }
   

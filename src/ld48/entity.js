@@ -25,12 +25,12 @@ class Entity {
     this.movable = true
     this.mass = 2  // Only matters if solid && movable
     
-    const AGI = 0.25
+    const AGI = 0.125
     this.moveAcceleration = AGI * this.size * 16
     this.moveDeceleration = AGI * this.size * 16
     this.moveMaxSpeed = AGI * this.size
     this.pushDeceleration = this.size
-    this.pushMaxSpeed = AGI * this.size
+    this.pushMaxSpeed = this.size
     
     this.colour = '#ccc'
     this.animationCounter = 0
@@ -134,10 +134,21 @@ class Entity {
     }
     
     // Draw anchor point, mostly for debugging
-    c2d.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
     c2d.beginPath()
-    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)
-    c2d.fill()
+    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
+    if (this.shape === SHAPES.CIRCLE) {  // Direction line
+      c2d.moveTo(
+        this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
+        this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
+      )
+      c2d.lineTo(
+        this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
+        this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
+      )
+    }
+    c2d.stroke()
+    c2d.closePath()
   }
   
   onCollision (target, collisionCorrection) {
