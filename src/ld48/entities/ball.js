@@ -1,8 +1,8 @@
 import Entity from '../entity'
-import { SHAPES, TILE_SIZE } from '../constants'
+import { TILE_SIZE } from '../constants'
 
 class Ball extends Entity {
-  constructor (app, col = 0, row = 0, width = 1, height = 1) {
+  constructor (app, col = 0, row = 0) {
     super(app)
     
     this.colour = '#48c'

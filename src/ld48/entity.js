@@ -152,12 +152,12 @@ class Entity {
   }
   
   onCollision (target, collisionCorrection) {
-    this.doBounds(target, collisionCorrection)
+    this.doBounce(target, collisionCorrection)
     this.x = collisionCorrection.x
     this.y = collisionCorrection.y
   }
   
-  doBounds (target, collisionCorrection) {
+  doBounce (target, collisionCorrection) {
     if (
       this.movable && this.solid
       && !target.movable && target.solid
