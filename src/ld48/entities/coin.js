@@ -11,7 +11,6 @@ class Coin extends Entity {
     this.z = 70
     
     this.solid = false
-    this.animationCounterMax = 1000
     
     this.pickedUp = false  // Has this coin been picked up by the hero? 
     this.expiryCountdown = 1000  // Time from being picked up to disappearing
@@ -66,17 +65,6 @@ class Coin extends Entity {
       const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
       const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
       
-      const animationProgress = this.animationCounter / this.animationCounterMax
-      if (animationProgress < 0.25) {
-        srcY = 0 * SPRITE_SIZE
-      } else if (animationProgress < 0.5) {
-        srcY = 1 * SPRITE_SIZE
-      } else if (animationProgress < 0.75) {
-        srcY = 2 * SPRITE_SIZE
-      } else {
-        srcY = 3 * SPRITE_SIZE
-      }
-
       c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
     }
   }

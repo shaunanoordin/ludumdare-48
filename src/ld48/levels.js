@@ -1,10 +1,11 @@
-import { PLAYER_ACTIONS } from './constants'
+import { PLAYER_ACTIONS, DIRECTIONS } from './constants'
 
 import Hero from './entities/hero'
 import Goal from './entities/goal'
 import Wall from './entities/wall'
 import Coin from './entities/coin'
 import Ball from './entities/ball'
+import Enemy from './entities/enemy'
 
 export default class Levels {
   constructor (app) {
@@ -60,5 +61,9 @@ export default class Levels {
     app.entities.push(new Wall(app, 3, 4, 3, 1))
     
     app.entities.push(new Ball(app, 8, 6))
+    
+    const enemy = new Enemy(app, 4, 11)
+    enemy.direction = DIRECTIONS.EAST
+    app.entities.push(enemy)
   }
 }

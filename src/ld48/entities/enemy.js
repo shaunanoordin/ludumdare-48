@@ -1,7 +1,7 @@
 import Entity from '../entity'
 import { PLAYER_ACTIONS, TILE_SIZE } from '../constants'
 
-class Hero extends Entity {
+class Enemy extends Entity {
   constructor (app, col = 0, row = 0) {
     super(app)
     
@@ -119,32 +119,9 @@ class Hero extends Entity {
   paint () {
     const app = this._app
     
-    this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
-      ? '#e42'
-      : '#c44'
+    this.colour = '#4c4'
     super.paint()
-    
-    const c2d = app.canvas2d
-    const camera = app.camera
-    const animationSpritesheet = app.assets.hero
-    if (!animationSpritesheet) return
-    
-    const SPRITE_SIZE = 64
-    let SPRITE_OFFSET_X = 0
-    let SPRITE_OFFSET_Y = 0
-
-    const srcSizeX = SPRITE_SIZE
-    const srcSizeY = SPRITE_SIZE
-    let srcX = 0
-    let srcY = 0
-
-    const tgtSizeX = SPRITE_SIZE * 1.25
-    const tgtSizeY = SPRITE_SIZE * 1.25
-    const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
-    const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
-
-    c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
   }
 }
   
-export default Hero
+export default Enemy
