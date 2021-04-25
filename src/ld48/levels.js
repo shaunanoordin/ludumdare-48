@@ -4,6 +4,7 @@ import Hero from './entities/hero'
 import Goal from './entities/goal'
 import Wall from './entities/wall'
 import Coin from './entities/coin'
+import Ball from './entities/ball'
 
 export default class Levels {
   constructor (app) {
@@ -44,7 +45,7 @@ export default class Levels {
   generate_default () {
     const app = this._app
     
-    app.hero = new Hero(app, 11, 7)
+    app.hero = new Hero(app, 11, 1)
     app.entities.push(app.hero)
     app.camera.target = app.hero
     
@@ -57,5 +58,7 @@ export default class Levels {
     
     app.entities.push(new Wall(app, 3, 2, 3, 1))
     app.entities.push(new Wall(app, 3, 4, 3, 1))
+    
+    app.entities.push(new Ball(app, 8, 6))
   }
 }

@@ -90,14 +90,14 @@ export default class Physics {
         a: {
           x: objA.x - cosAngle * (correctDist - dist) * fractionA,
           y: objA.y - sinAngle * (correctDist - dist) * fractionA,
-          moveX: motion && motion.a.moveX,
-          moveY: motion && motion.a.moveY,
+          pushX: motion && motion.a.pushX,
+          pushY: motion && motion.a.pushY,
         },
         b: {
           x: objB.x + cosAngle * (correctDist - dist) * fractionB,
           y: objB.y + sinAngle * (correctDist - dist) * fractionB,
-          moveX: motion && motion.b.moveX,
-          moveY: motion && motion.b.moveY,
+          pushX: motion && motion.b.pushX,
+          pushY: motion && motion.b.pushY,
         }
       }
     }
@@ -281,10 +281,10 @@ export default class Physics {
     const collisionAngle = Math.atan2(objB.y - objA.y, objB.x - objA.x)
     const ANGLE_90 = Math.PI / 2
     const totalMass = objA.mass + objB.mass
-    const aSpd = objA.movementSpeed
-    const bSpd = objB.movementSpeed
-    const aAng = objA.movementAngle
-    const bAng = objB.movementAngle
+    const aSpd = objA.pushSpeed
+    const bSpd = objB.pushSpeed
+    const aAng = objA.pushAngle
+    const bAng = objB.pushAngle
     const aMass = objA.mass
     const bMass = objB.mass
     
@@ -297,27 +297,27 @@ export default class Physics {
         + 2 * aMass * aSpd * Math.cos(aAng - collisionAngle)
       ) / totalMass
     
-    const objA_moveX =
+    const objA_pushX =
       aGroup * Math.cos(collisionAngle)
       + aSpd * Math.sin(aAng - collisionAngle) * Math.cos(collisionAngle + ANGLE_90)
-    const objA_moveY =
+    const objA_pushY =
       aGroup * Math.sin(collisionAngle)
       + aSpd * Math.sin(aAng - collisionAngle) * Math.sin(collisionAngle + ANGLE_90)
-    const objB_moveX =
+    const objB_pushX =
       bGroup * Math.cos(collisionAngle)
       + bSpd * Math.sin(bAng - collisionAngle) * Math.cos(collisionAngle + ANGLE_90)
-    const objB_moveY =
+    const objB_pushY =
       bGroup * Math.sin(collisionAngle)
       + bSpd * Math.sin(bAng - collisionAngle) * Math.sin(collisionAngle + ANGLE_90)
     
     return {
       a: {
-        moveX: objA_moveX,
-        moveY: objA_moveY,
+        pushX: objA_pushX,
+        pushY: objA_pushY,
       },
       b: {
-        moveX: objB_moveX,
-        moveY: objB_moveY,
+        pushX: objB_pushX,
+        pushY: objB_pushY,
       },
     }
   }

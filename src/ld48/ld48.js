@@ -224,7 +224,7 @@ class LD48 {
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
 
-      const text = this.hero?.action?.name + ' - ' + this.hero?.movementSpeed?.toFixed()
+      const text = this.hero?.action?.name + ' - ' + this.hero?.moveSpeed?.toFixed() + ' - ' + this.hero?.pushSpeed?.toFixed()
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
@@ -273,7 +273,18 @@ class LD48 {
       if (keysPressed['ArrowLeft']) moveX--
       if (keysPressed['ArrowUp']) moveY--
       
-      if (moveX || moveY) {
+      if (
+        (keysPressed['x'] && !keysPressed['x'].acknowledged)
+        || (keysPressed['X'] && !keysPressed['X'].acknowledged)
+      ) {
+        intent = {
+          name: 'dash',
+          attr: { moveX, moveY },
+        }
+        if (keysPressed['x']) keysPressed['x'].acknowledged = true
+        if (keysPressed['X']) keysPressed['X'].acknowledged = true
+      
+      } else if (moveX || moveY) {
         intent = {
           name: 'move',
           attr: { moveX, moveY },

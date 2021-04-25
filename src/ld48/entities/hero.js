@@ -24,10 +24,10 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
-  play_physics_deceleration (timeStep) {
+  play_move_deceleration (timeStep) {
     // Don't decelerate if moving
     if (this.action?.name !== 'move') {
-      super.play_physics_deceleration (timeStep)
+      super.play_move_deceleration (timeStep)
     }
   }
   
@@ -61,26 +61,52 @@ class Hero extends Entity {
     
     const action = this.action
     
-    if (action.name === 'move') {
+    if (action.name === 'idle') {
+      
+      // Idle
+      
+    } else if (action.name === 'move') {
+      
       const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
-      const actionRotation = Math.atan2(action.attr?.moveY || 0, action.attr?.moveX || 0)
+      const attrMoveX = action.attr?.moveX || 0
+      const attrMoveY = action.attr?.moveY || 0
+      const actionRotation = Math.atan2(attrMoveY, attrMoveX)
       let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
       let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
-
-      // Limit max speed
-      if (this.moveMaxSpeed >= 0) {
-        const moveMaxSpeed = this.moveMaxSpeed;
-        const correctedSpeed = Math.min(moveMaxSpeed, Math.sqrt(moveX * moveX + moveY * moveY))
-        const moveRotation = Math.atan2(moveY, moveX)
-        moveX = correctedSpeed * Math.cos(moveRotation)
-        moveY = correctedSpeed * Math.sin(moveRotation)
-      }
 
       this.moveX = moveX
       this.moveY = moveY
       this.rotation = actionRotation
       
       action.counter += timeStep
+      
+    } else if (action.name === 'dash') {
+      const duration = 4  // Time in frames, not seconds. (Seconds seems inconsistent.)
+      const progress = action.counter / duration
+      
+      if (!this.action.attr.acknowledged) {
+        const moveX = action.attr.moveX  || 0
+        const moveY = action.attr.moveY  || 0
+        this.rotation = (action.attr.moveX === 0 && action.attr.moveY === 0)
+          ? this.rotation
+          : Math.atan2(moveY, moveX)
+        action.attr.acknowledged = true
+        action.attr.rotation = this.rotation
+      }
+      
+      if (action.attr.rotation !== undefined) {
+        const PUSH_POWER = 6 * this.size * timeStep / 1000
+        this.pushX += PUSH_POWER  * Math.cos(action.attr.rotation)
+        this.pushY += PUSH_POWER * Math.sin(action.attr.rotation)
+        console.log('Dash: ', PUSH_POWER, timeStep)
+      }
+    
+      action.counter += 1
+      
+      if (action.counter >= duration) {  // Time in frames, not seconds
+        console.log('Dash ended at: ', action.counter)
+        this.goIdle()
+      }
     }
   }
   
@@ -118,24 +144,6 @@ class Hero extends Entity {
     const tgtSizeY = SPRITE_SIZE * 1.25
     const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
     const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
-
-    if (this.movementSpeed) {
-      const animationProgress = (this.animationCounter % (this.animationCounterMax / 3)) / (this.animationCounterMax / 3)
-      if (animationProgress < 0.5) {
-        srcY = 2 * SPRITE_SIZE
-      } else {
-        srcY = 3 * SPRITE_SIZE
-      }
-    } else {
-      const animationProgress = this.animationCounter / this.animationCounterMax
-      if (animationProgress < 0.5) {
-        srcY = 0
-      } else {
-        srcY = SPRITE_SIZE
-      }
-    }
-
-    srcX = (this.moveX < 0) ? 0 : SPRITE_SIZE
 
     c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
   }

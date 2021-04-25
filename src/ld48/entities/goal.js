@@ -26,8 +26,8 @@ class Goal extends Entity {
     const angleToGoal = Math.atan2(distY, distX)
     const distanceToGoal = Math.sqrt(distX * distX + distY * distY)
     
-    hero.moveX = Math.cos(angleToGoal) * Math.min(distanceToGoal, hero.movementSpeed)
-    hero.moveY = Math.sin(angleToGoal) * Math.min(distanceToGoal, hero.movementSpeed)
+    hero.moveX = Math.cos(angleToGoal) * Math.min(distanceToGoal, hero.moveSpeed)
+    hero.moveY = Math.sin(angleToGoal) * Math.min(distanceToGoal, hero.moveSpeed)
     
     if (!this._app.victory) {
       this._app.celebrateVictory()

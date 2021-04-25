@@ -25,10 +25,12 @@ class Entity {
     this.movable = true
     this.mass = 2  // Only matters if solid && movable
     
-    const AGI = 0.25
+    const AGI = 0.125
     this.moveAcceleration = AGI * this.size * 16
     this.moveDeceleration = AGI * this.size * 16
     this.moveMaxSpeed = AGI * this.size
+    this.pushDeceleration = this.size
+    this.pushMaxSpeed = this.size
     
     this.colour = '#ccc'
     this.animationCounter = 0
@@ -38,11 +40,15 @@ class Entity {
   play (timeStep) {
     // Update position
     const timeCorrection = (timeStep / EXPECTED_TIMESTEP)
-    this.x += this.moveX * timeCorrection
-    this.y += this.moveY * timeCorrection
+    this.x += (this.moveX + this.pushX) * timeCorrection
+    this.y += (this.moveY + this.pushY) * timeCorrection
     
     // Upkeep: deceleration
-    this.play_physics_deceleration(timeStep)
+    this.play_move_deceleration(timeStep)
+    this.play_push_deceleration(timeStep)
+    
+    // Upkeep: limit speed
+    this.play_maxSpeed(timeStep)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
@@ -50,14 +56,40 @@ class Entity {
     }
   }
   
-  play_physics_deceleration (timeStep) {
+  play_move_deceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
     const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
     const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
-    
     this.moveX = newMoveSpeed * Math.cos(curRotation)
     this.moveY = newMoveSpeed * Math.sin(curRotation)
+  }
+  
+  play_push_deceleration (timeStep) {
+    const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
+    const curRotation = Math.atan2(this.pushY, this.pushX)
+    const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+    const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
+    this.pushX = newPushSpeed * Math.cos(curRotation)
+    this.pushY = newPushSpeed * Math.sin(curRotation)
+  }
+  
+  play_maxSpeed (timeStep) {
+    // Limit max move speed
+    if (this.moveMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.moveMaxSpeed, this.moveSpeed)
+      const moveAngle = this.moveAngle
+      this.moveX = correctedSpeed * Math.cos(moveAngle)
+      this.moveY = correctedSpeed * Math.sin(moveAngle)
+    }
+    
+    // Limit max push speed
+    if (this.pushMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.pushMaxSpeed, this.pushSpeed)
+      const pushAngle = this.pushAngle
+      this.pushX = correctedSpeed * Math.cos(pushAngle)
+      this.pushY = correctedSpeed * Math.sin(pushAngle)
+    }
   }
   
   paint () {
@@ -102,15 +134,79 @@ class Entity {
     }
     
     // Draw anchor point, mostly for debugging
-    c2d.fillStyle = 'rgba(255, 255, 255, 0.5)'
+    c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
     c2d.beginPath()
-    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)
-    c2d.fill()
+    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
+    if (this.shape === SHAPES.CIRCLE) {  // Direction line
+      c2d.moveTo(
+        this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
+        this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
+      )
+      c2d.lineTo(
+        this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
+        this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
+      )
+    }
+    c2d.stroke()
+    c2d.closePath()
   }
   
   onCollision (target, collisionCorrection) {
+    this.doBounds(target, collisionCorrection)
     this.x = collisionCorrection.x
     this.y = collisionCorrection.y
+  }
+  
+  doBounds (target, collisionCorrection) {
+    if (
+      this.movable && this.solid
+      && !target.movable && target.solid
+    ) {
+      if (
+        this.shape === SHAPES.CIRCLE && target.shape === SHAPES.CIRCLE
+      ) {
+        
+        // For circle + circle collisions, the collision correction already
+        // tells us the bounce direction.
+        const angle = Math.atan2(collisionCorrection.y - this.y, collisionCorrection.x - this.x)
+        const speed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+
+        this.pushX = Math.cos(angle) * speed
+        this.pushY = Math.sin(angle) * speed
+
+      } else if (
+        this.shape === SHAPES.CIRCLE
+        && (target.shape === SHAPES.SQUARE || target.shape === SHAPES.POLYGON)
+      ) {
+        
+        // For circle + polygon collisions, we need to know...
+        // - the original angle this circle was moving towards (or rather, its
+        //   reverse, because we want a bounce)
+        // - the normal vector (of the edge) of the polygon this circle collided
+        //   into (which we can get from the collision correction)
+        // - the angle between them
+        const reverseOriginalAngle = Math.atan2(-this.pushY, -this.pushX)
+        const normalAngle = Math.atan2(collisionCorrection.y - this.y, collisionCorrection.x - this.x)
+        const angleBetween = normalAngle - reverseOriginalAngle
+        const angle = reverseOriginalAngle + 2 * angleBetween
+
+        const speed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+
+        this.pushX = Math.cos(angle) * speed
+        this.pushY = Math.sin(angle) * speed
+        
+      } else {
+        // For the moment, we're not too concerned about polygons bumping into each other
+      }
+    } else if (
+      this.movable && this.solid
+      && target.movable && target.solid
+      && collisionCorrection.pushX !== undefined
+      && collisionCorrection.pushY !== undefined
+    ) {
+      this.pushX = collisionCorrection.pushX
+      this.pushY = collisionCorrection.pushY
+    }
   }
   
   get left () { return this.x - this.size / 2 }
@@ -180,12 +276,20 @@ class Entity {
     return v
   }
   
-  get movementSpeed () {
+  get moveSpeed () {
     return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
   }
   
-  get movementAngle () {
+  get moveAngle () {
     return Math.atan2(this.moveY, this.moveX)
+  }
+  
+  get pushSpeed () {
+    return Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+  }
+  
+  get pushAngle () {
+    return Math.atan2(this.pushY, this.pushX)
   }
 }
 
