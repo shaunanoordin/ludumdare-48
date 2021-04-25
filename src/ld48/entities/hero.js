@@ -79,8 +79,8 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const duration = 4  // Time in frames, not seconds. (Seconds seems inconsistent.)
-      const progress = action.counter / duration
+      const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
+      const PUSH_IMPULSE = this.size * 16
       
       if (!this.action.attr.acknowledged) {
         const moveX = action.attr.moveX  || 0
@@ -92,16 +92,16 @@ class Hero extends Entity {
         action.attr.rotation = this.rotation
       }
       
-      if (action.attr.rotation !== undefined) {
-        const PUSH_POWER = 6 * this.size * timeStep / 1000
-        this.pushX += PUSH_POWER  * Math.cos(action.attr.rotation)
-        this.pushY += PUSH_POWER * Math.sin(action.attr.rotation)
-        console.log('Dash: ', PUSH_POWER, timeStep)
-      }
-    
-      action.counter += 1
-      
-      if (action.counter >= duration) {  // Time in frames, not seconds
+      let pushPower = Math.min(
+        PUSH_IMPULSE * timeStep / 1000,
+        MAX_DISTANCE - action.counter
+      )
+      this.pushX += pushPower  * Math.cos(action.attr.rotation)
+      this.pushY += pushPower * Math.sin(action.attr.rotation)
+      console.log('Dash: ', pushPower, timeStep)
+      action.counter += pushPower
+            
+      if (action.counter >= MAX_DISTANCE) {
         console.log('Dash ended at: ', action.counter)
         this.goIdle()
       }
