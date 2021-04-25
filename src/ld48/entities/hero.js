@@ -10,8 +10,6 @@ class Hero extends Entity {
     this.y = row * TILE_SIZE + TILE_SIZE / 2
     this.z = 100
     
-    this.animationCounterMax = 1500
-    
     this.intent = undefined
     this.action = undefined
   }
@@ -24,10 +22,10 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
-  play_move_deceleration (timeStep) {
+  doMoveDeceleration (timeStep) {
     // Don't decelerate if moving
     if (this.action?.name !== 'move') {
-      super.play_move_deceleration (timeStep)
+      super.doMoveDeceleration (timeStep)
     }
   }
   
@@ -81,8 +79,8 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const duration = 4  // Time in frames, not seconds. (Seconds seems inconsistent.)
-      const progress = action.counter / duration
+      const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
+      const PUSH_IMPULSE = this.size * 16
       
       if (!this.action.attr.acknowledged) {
         const moveX = action.attr.moveX  || 0
@@ -94,17 +92,15 @@ class Hero extends Entity {
         action.attr.rotation = this.rotation
       }
       
-      if (action.attr.rotation !== undefined) {
-        const PUSH_POWER = 6 * this.size * timeStep / 1000
-        this.pushX += PUSH_POWER  * Math.cos(action.attr.rotation)
-        this.pushY += PUSH_POWER * Math.sin(action.attr.rotation)
-        console.log('Dash: ', PUSH_POWER, timeStep)
-      }
-    
-      action.counter += 1
-      
-      if (action.counter >= duration) {  // Time in frames, not seconds
-        console.log('Dash ended at: ', action.counter)
+      let pushPower = Math.min(
+        PUSH_IMPULSE * timeStep / 1000,
+        MAX_DISTANCE - action.counter
+      )
+      this.pushX += pushPower  * Math.cos(action.attr.rotation)
+      this.pushY += pushPower * Math.sin(action.attr.rotation)
+      action.counter += pushPower
+            
+      if (action.counter >= MAX_DISTANCE) {
         this.goIdle()
       }
     }

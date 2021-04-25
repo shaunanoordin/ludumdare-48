@@ -44,11 +44,11 @@ class Entity {
     this.y += (this.moveY + this.pushY) * timeCorrection
     
     // Upkeep: deceleration
-    this.play_move_deceleration(timeStep)
-    this.play_push_deceleration(timeStep)
+    this.doMoveDeceleration(timeStep)
+    this.doPushDeceleration(timeStep)
     
     // Upkeep: limit speed
-    this.play_maxSpeed(timeStep)
+    this.doMaxSpeedLimit(timeStep)
     
     // Step through animation
     if (this.animationCounterMax > 0) {
@@ -56,7 +56,7 @@ class Entity {
     }
   }
   
-  play_move_deceleration (timeStep) {
+  doMoveDeceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
     const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
@@ -65,7 +65,7 @@ class Entity {
     this.moveY = newMoveSpeed * Math.sin(curRotation)
   }
   
-  play_push_deceleration (timeStep) {
+  doPushDeceleration (timeStep) {
     const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.pushY, this.pushX)
     const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
@@ -74,7 +74,7 @@ class Entity {
     this.pushY = newPushSpeed * Math.sin(curRotation)
   }
   
-  play_maxSpeed (timeStep) {
+  doMaxSpeedLimit (timeStep) {
     // Limit max move speed
     if (this.moveMaxSpeed >= 0) {
       const correctedSpeed = Math.min(this.moveMaxSpeed, this.moveSpeed)
@@ -152,12 +152,12 @@ class Entity {
   }
   
   onCollision (target, collisionCorrection) {
-    this.doBounds(target, collisionCorrection)
+    this.doBounce(target, collisionCorrection)
     this.x = collisionCorrection.x
     this.y = collisionCorrection.y
   }
   
-  doBounds (target, collisionCorrection) {
+  doBounce (target, collisionCorrection) {
     if (
       this.movable && this.solid
       && !target.movable && target.solid
