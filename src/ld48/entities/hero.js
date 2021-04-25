@@ -22,10 +22,10 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
-  play_move_deceleration (timeStep) {
+  doMoveDeceleration (timeStep) {
     // Don't decelerate if moving
     if (this.action?.name !== 'move') {
-      super.play_move_deceleration (timeStep)
+      super.doMoveDeceleration (timeStep)
     }
   }
   
