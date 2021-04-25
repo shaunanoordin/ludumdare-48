@@ -98,11 +98,9 @@ class Hero extends Entity {
       )
       this.pushX += pushPower  * Math.cos(action.attr.rotation)
       this.pushY += pushPower * Math.sin(action.attr.rotation)
-      console.log('Dash: ', pushPower, timeStep)
       action.counter += pushPower
             
       if (action.counter >= MAX_DISTANCE) {
-        console.log('Dash ended at: ', action.counter)
         this.goIdle()
       }
     }
