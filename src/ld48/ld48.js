@@ -360,10 +360,12 @@ class LD48 {
   
   updateUI () {
     // Fit the Interaction layer to the canvas
+    const mainDivBounds = this.html.main.getBoundingClientRect()
     const canvasBounds = this.html.canvas.getBoundingClientRect()
+    console.log(canvasBounds, mainDivBounds)
     this.html.menu.style.width = `${canvasBounds.width}px`
     this.html.menu.style.height = `${canvasBounds.height}px`
-    this.html.menu.style.top = '0'
+    this.html.menu.style.top = `${canvasBounds.top - mainDivBounds.top}px`
     this.html.menu.style.left = `${canvasBounds.left}px`
   }
   
