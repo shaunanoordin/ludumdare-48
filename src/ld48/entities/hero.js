@@ -158,7 +158,19 @@ class Hero extends Entity {
       name: 'idle',
       counter: 0,
     }
-  }  
+  }
+  
+  /*
+  Section: Physics
+  ----------------------------------------------------------------------------
+   */
+  
+  doMoveDeceleration (timeStep) {
+    // Don't decelerate if moving
+    if (this.action?.name !== 'move') {
+      super.doMoveDeceleration (timeStep)
+    }
+  }
 }
   
 export default Hero
