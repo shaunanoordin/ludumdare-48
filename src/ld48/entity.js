@@ -7,6 +7,7 @@ class Entity {
     // Expired entities are removed at the end of the cycle.
     this._expired = false
     
+    // Positional data
     this.x = 0
     this.y = 0
     this.z = 0  // Only relevant to paint(), not to physics
@@ -33,8 +34,6 @@ class Entity {
     this.pushMaxSpeed = this.size
     
     this.colour = '#ccc'
-    this.animationCounter = 0
-    this.animationCounterMax = 0
   }
   
   play (timeStep) {
@@ -49,48 +48,12 @@ class Entity {
     
     // Upkeep: limit speed
     this.doMaxSpeedLimit(timeStep)
-    
-    // Step through animation
-    if (this.animationCounterMax > 0) {
-      this.animationCounter = (this.animationCounter + timeStep) % this.animationCounterMax
-    }
   }
   
-  doMoveDeceleration (timeStep) {
-    const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
-    const curRotation = Math.atan2(this.moveY, this.moveX)
-    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
-    const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
-    this.moveX = newMoveSpeed * Math.cos(curRotation)
-    this.moveY = newMoveSpeed * Math.sin(curRotation)
-  }
-  
-  doPushDeceleration (timeStep) {
-    const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
-    const curRotation = Math.atan2(this.pushY, this.pushX)
-    const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
-    const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
-    this.pushX = newPushSpeed * Math.cos(curRotation)
-    this.pushY = newPushSpeed * Math.sin(curRotation)
-  }
-  
-  doMaxSpeedLimit (timeStep) {
-    // Limit max move speed
-    if (this.moveMaxSpeed >= 0) {
-      const correctedSpeed = Math.min(this.moveMaxSpeed, this.moveSpeed)
-      const moveAngle = this.moveAngle
-      this.moveX = correctedSpeed * Math.cos(moveAngle)
-      this.moveY = correctedSpeed * Math.sin(moveAngle)
-    }
-    
-    // Limit max push speed
-    if (this.pushMaxSpeed >= 0) {
-      const correctedSpeed = Math.min(this.pushMaxSpeed, this.pushSpeed)
-      const pushAngle = this.pushAngle
-      this.pushX = correctedSpeed * Math.cos(pushAngle)
-      this.pushY = correctedSpeed * Math.sin(pushAngle)
-    }
-  }
+  /*
+  Section: Paint
+  ----------------------------------------------------------------------------
+   */
   
   paint () {
     this.paint_outline()
@@ -151,12 +114,78 @@ class Entity {
     c2d.closePath()
   }
   
+  /*
+  Section: Game Logic
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  Applies an effect to this entity. Usually called by another antity.
+  e.g. a fireball hits this character and applies an "ON FIRE" effect.
+   */
+  applyEffect (effect, source) {}
+  
+  /*
+  Section: Event Handling
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  Triggers when this entity hits/touches/intersects with another.
+   */
   onCollision (target, collisionCorrection) {
     this.doBounce(target, collisionCorrection)
     this.x = collisionCorrection.x
     this.y = collisionCorrection.y
   }
   
+  /*
+  Section: Common Physics
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  
+   */
+  doMoveDeceleration (timeStep) {
+    const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
+    const curRotation = Math.atan2(this.moveY, this.moveX)
+    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
+    const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
+    this.moveX = newMoveSpeed * Math.cos(curRotation)
+    this.moveY = newMoveSpeed * Math.sin(curRotation)
+  }
+  
+  doPushDeceleration (timeStep) {
+    const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
+    const curRotation = Math.atan2(this.pushY, this.pushX)
+    const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
+    const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
+    this.pushX = newPushSpeed * Math.cos(curRotation)
+    this.pushY = newPushSpeed * Math.sin(curRotation)
+  }
+  
+  doMaxSpeedLimit (timeStep) {
+    // Limit max move speed
+    if (this.moveMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.moveMaxSpeed, this.moveSpeed)
+      const moveAngle = this.moveAngle
+      this.moveX = correctedSpeed * Math.cos(moveAngle)
+      this.moveY = correctedSpeed * Math.sin(moveAngle)
+    }
+    
+    // Limit max push speed
+    if (this.pushMaxSpeed >= 0) {
+      const correctedSpeed = Math.min(this.pushMaxSpeed, this.pushSpeed)
+      const pushAngle = this.pushAngle
+      this.pushX = correctedSpeed * Math.cos(pushAngle)
+      this.pushY = correctedSpeed * Math.sin(pushAngle)
+    }
+  }
+  
+  /*
+  When a solid pushed entity hits another solid entity, momentum is transferred.
+   */
   doBounce (target, collisionCorrection) {
     if (
       this.movable && this.solid
@@ -208,6 +237,11 @@ class Entity {
       this.pushY = collisionCorrection.pushY
     }
   }
+  
+  /*
+  Section: Getters and Setters
+  ----------------------------------------------------------------------------
+   */
   
   get left () { return this.x - this.size / 2 }
   get right () { return this.x + this.size / 2 }
