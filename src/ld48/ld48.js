@@ -193,7 +193,10 @@ class LD48 {
 
     // Draw entities
     // ----------------
-    this.entities.forEach(entity => entity.paint())
+    const MAX_LAYER = 2
+    for (let layer = 0 ; layer < MAX_LAYER ; layer++) {
+      this.entities.forEach(entity => entity.paint(layer))
+    }
     // ----------------
     
     // Draw player input
@@ -224,12 +227,20 @@ class LD48 {
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
 
-      const text = this.hero?.action?.name + ' - ' + this.hero?.moveSpeed?.toFixed() + ' - ' + this.hero?.pushSpeed?.toFixed()
+      const health = Math.max(this.hero?.health, 0) || 0
+      let text = '❤️'.repeat(health)
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
       c2d.fillStyle = '#c44'
       c2d.fillText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      
+      text = this.hero?.action?.name
+      c2d.textAlign = 'right'
+      c2d.strokeStyle = '#fff'
+      c2d.strokeText(text, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.fillStyle = '#c44'
+      c2d.fillText(text, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
     }
     // ----------------
     
@@ -265,13 +276,13 @@ class LD48 {
     if (this.hero) {
       const keysPressed = this.playerInput.keysPressed
       let intent = undefined
-      let moveX = 0
-      let moveY = 0
+      let directionX = 0
+      let directionY = 0
       
-      if (keysPressed['ArrowRight']) moveX++
-      if (keysPressed['ArrowDown']) moveY++
-      if (keysPressed['ArrowLeft']) moveX--
-      if (keysPressed['ArrowUp']) moveY--
+      if (keysPressed['ArrowRight']) directionX++
+      if (keysPressed['ArrowDown']) directionY++
+      if (keysPressed['ArrowLeft']) directionX--
+      if (keysPressed['ArrowUp']) directionY--
       
       if (
         (keysPressed['x'] && !keysPressed['x'].acknowledged)
@@ -279,15 +290,17 @@ class LD48 {
       ) {
         intent = {
           name: 'dash',
-          attr: { moveX, moveY },
+          directionX,
+          directionY,
         }
         if (keysPressed['x']) keysPressed['x'].acknowledged = true
         if (keysPressed['X']) keysPressed['X'].acknowledged = true
       
-      } else if (moveX || moveY) {
+      } else if (directionX || directionY) {
         intent = {
           name: 'move',
-          attr: { moveX, moveY },
+          directionX,
+          directionY,
         }
       }
   

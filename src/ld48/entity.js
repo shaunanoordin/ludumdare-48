@@ -7,9 +7,9 @@ class Entity {
     // Expired entities are removed at the end of the cycle.
     this._expired = false
     
+    // Positional data
     this.x = 0
     this.y = 0
-    this.z = 0  // Only relevant to paint(), not to physics
     this.size = TILE_SIZE
     this._rotation = ROTATIONS.SOUTH  // Rotation in radians
     
@@ -33,9 +33,12 @@ class Entity {
     this.pushMaxSpeed = this.size
     
     this.colour = '#ccc'
-    this.animationCounter = 0
-    this.animationCounterMax = 0
   }
+  
+  /*
+  Section: General Logic
+  ----------------------------------------------------------------------------
+   */
   
   play (timeStep) {
     // Update position
@@ -49,13 +52,104 @@ class Entity {
     
     // Upkeep: limit speed
     this.doMaxSpeedLimit(timeStep)
+  }
+  
+  /*
+  Paints entity's hitbox.
+   */
+  paint (layer = 0) {
+    const c2d = this._app.canvas2d
+    const camera = this._app.camera
     
-    // Step through animation
-    if (this.animationCounterMax > 0) {
-      this.animationCounter = (this.animationCounter + timeStep) % this.animationCounterMax
+    if (layer === 0) {
+      c2d.fillStyle = this.colour
+      c2d.strokeStyle = '#444'
+      c2d.lineWidth = this.mass
+
+      // Draw shape outline
+      switch (this.shape) {
+      case SHAPES.CIRCLE:
+        c2d.beginPath()
+        c2d.arc(this.x + camera.x, this.y + camera.y, this.size / 2, 0, 2 * Math.PI)
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
+      case SHAPES.SQUARE:
+        c2d.beginPath()
+        c2d.rect(this.x + camera.x - this.size / 2, this.y + camera.y - this.size / 2, this.size, this.size)
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
+      case SHAPES.POLYGON:
+        c2d.beginPath()
+        let coords = this.vertices
+        if (coords.length >= 1) c2d.moveTo(coords[coords.length-1].x + camera.x, coords[coords.length-1].y + camera.y)
+        for (let i = 0 ; i < coords.length ; i++) {
+          c2d.lineTo(coords[i].x + camera.x, coords[i].y + camera.y)
+        }
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
+      }
+
+      // Draw anchor point, mostly for debugging
+      c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
+      c2d.beginPath()
+      c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
+      if (this.shape === SHAPES.CIRCLE) {  // Direction line
+        c2d.moveTo(
+          this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
+          this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
+        )
+        c2d.lineTo(
+          this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
+          this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
+        )
+      }
+      c2d.stroke()
+      c2d.closePath()
     }
   }
   
+  /*
+  Section: Game Logic
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  Applies an effect to this entity. Usually called by another antity.
+  e.g. a fireball hits this character and applies an "ON FIRE" effect.
+   */
+  applyEffect (effect, source) {}
+  
+  /*
+  Section: Event Handling
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  Triggers when this entity hits/touches/intersects with another.
+   */
+  onCollision (target, collisionCorrection) {
+    this.doBounce(target, collisionCorrection)
+    this.x = collisionCorrection.x
+    this.y = collisionCorrection.y
+  }
+  
+  /*
+  Section: Physics
+  ----------------------------------------------------------------------------
+   */
+  
+  /*
+  By default, every moving entity decelerates (because we don't exist in a
+  perfect vacuum and the game doesn't take place on a slippery ice).
+  Entities can intentionally override this logic,
+  e.g. "if a hero is walking, ignore deceleration."
+   */
   doMoveDeceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
@@ -74,6 +168,10 @@ class Entity {
     this.pushY = newPushSpeed * Math.sin(curRotation)
   }
   
+  /*
+  Every entity has a maximum speed limit. Intentional movement speed and
+  external force movement speed are treated separately.
+   */
   doMaxSpeedLimit (timeStep) {
     // Limit max move speed
     if (this.moveMaxSpeed >= 0) {
@@ -92,71 +190,10 @@ class Entity {
     }
   }
   
-  paint () {
-    this.paint_outline()
-  }
-  
-  paint_outline () {
-    const c2d = this._app.canvas2d
-    const camera = this._app.camera
-    
-    c2d.fillStyle = this.colour
-    c2d.strokeStyle = '#444'
-    c2d.lineWidth = this.mass
-    
-    // Draw shape outline
-    switch (this.shape) {
-    case SHAPES.CIRCLE:
-      c2d.beginPath()
-      c2d.arc(this.x + camera.x, this.y + camera.y, this.size / 2, 0, 2 * Math.PI)
-      c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
-    case SHAPES.SQUARE:
-      c2d.beginPath()
-      c2d.rect(this.x + camera.x - this.size / 2, this.y + camera.y - this.size / 2, this.size, this.size)
-      c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
-    case SHAPES.POLYGON:
-      c2d.beginPath()
-      let coords = this.vertices
-      if (coords.length >= 1) c2d.moveTo(coords[coords.length-1].x + camera.x, coords[coords.length-1].y + camera.y)
-      for (let i = 0 ; i < coords.length ; i++) {
-        c2d.lineTo(coords[i].x + camera.x, coords[i].y + camera.y)
-      }
-      c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
-    }
-    
-    // Draw anchor point, mostly for debugging
-    c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-    c2d.beginPath()
-    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
-    if (this.shape === SHAPES.CIRCLE) {  // Direction line
-      c2d.moveTo(
-        this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
-        this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
-      )
-      c2d.lineTo(
-        this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
-        this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
-      )
-    }
-    c2d.stroke()
-    c2d.closePath()
-  }
-  
-  onCollision (target, collisionCorrection) {
-    this.doBounce(target, collisionCorrection)
-    this.x = collisionCorrection.x
-    this.y = collisionCorrection.y
-  }
-  
+  /*
+  When a solid pushed entity hits another solid entity, momentum is transferred.
+  Usually, this leads to elastic collisions, because that chaos is fun!
+   */
   doBounce (target, collisionCorrection) {
     if (
       this.movable && this.solid
@@ -208,6 +245,11 @@ class Entity {
       this.pushY = collisionCorrection.pushY
     }
   }
+  
+  /*
+  Section: Getters and Setters
+  ----------------------------------------------------------------------------
+   */
   
   get left () { return this.x - this.size / 2 }
   get right () { return this.x + this.size / 2 }

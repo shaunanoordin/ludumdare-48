@@ -14,7 +14,6 @@ class Shot extends Entity {
     this.size = TILE_SIZE / 2
     this.x = x
     this.y = y
-    this.z = 80
     
     this.rotation = rotation
     this.moveAcceleration = this.size * 2
@@ -25,8 +24,10 @@ class Shot extends Entity {
   
   onCollision (target, collisionCorrection) {
     super.onCollision(target, collisionCorrection)
-    if (this.source !== target) {
-      console.log('gone!')
+    if (this.source !== target && target.solid) {
+      target.applyEffect({
+        name: 'damage',
+      }, this)
       this._expired = true
     }
   }

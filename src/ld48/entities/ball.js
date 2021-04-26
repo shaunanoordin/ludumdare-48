@@ -10,7 +10,6 @@ class Ball extends Entity {
     this.movable = true
     this.x = col * TILE_SIZE + TILE_SIZE / 2
     this.y = row * TILE_SIZE + TILE_SIZE / 2
-    this.z = 80
   }
 }
   

@@ -9,12 +9,10 @@ class Enemy extends Entity {
     this.colour = '#4c4'
     this.x = col * TILE_SIZE + TILE_SIZE / 2
     this.y = row * TILE_SIZE + TILE_SIZE / 2
-    this.z = 100
     
     this.action = {
       name: 'shoot',
       counter: 0,
-      attr: {},
     }
   }
   
@@ -34,8 +32,8 @@ class Enemy extends Entity {
       const DURATION = 500
       const progress = action.counter / DURATION
       
-      if (!action.attr.acknowledged && progress > 0.5) {
-        action.attr.acknowledged = true
+      if (!action.acknowledged && progress > 0.5) {
+        action.acknowledged = true
         app.entities.push(new Shot(app, this.x, this.y, this.rotation, this))
       }
       
@@ -44,7 +42,6 @@ class Enemy extends Entity {
         this.action = {
           name: 'shoot',
           counter: 0,
-          attr: {},
         }
       }
     }
