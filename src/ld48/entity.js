@@ -4,6 +4,10 @@ class Entity {
   constructor (app) {
     this._app = app
     
+    // General identity stats
+    const AGI = 0.125
+    this.colour = '#ccc'
+    
     // Expired entities are removed at the end of the cycle.
     this._expired = false
     
@@ -12,27 +16,24 @@ class Entity {
     this.y = 0
     this.size = TILE_SIZE
     this._rotation = ROTATIONS.SOUTH  // Rotation in radians
+    this.shape = SHAPES.CIRCLE
+    this.shapePolygonPath = null  // Only applicable if shape === SHAPES.POLYGON
     
-    // Movement: self locomotion and external (pushed) movement.
+    // Physics (movement): self locomotion and external (pushed) movement.
     this.moveX = 0
     this.moveY = 0
     this.pushX = 0
     this.pushY = 0
     
-    this.shape = SHAPES.CIRCLE
-    this.shapePolygonPath = null  // Only applicable if shape === SHAPES.POLYGON
-    this.solid = true
-    this.movable = true
-    this.mass = 2  // Only matters if solid && movable
-    
-    const AGI = 0.125
-    this.moveAcceleration = AGI * this.size * 16
-    this.moveDeceleration = AGI * this.size * 16
-    this.moveMaxSpeed = AGI * this.size
-    this.pushDeceleration = this.size
-    this.pushMaxSpeed = this.size
-    
-    this.colour = '#ccc'
+    // Additional physics
+    this._solid = true
+    this._movable = true
+    this._mass = 2  // Only matters if solid && movable
+    this._moveAcceleration = AGI * this.size * 16
+    this._moveDeceleration = AGI * this.size * 16
+    this._moveMaxSpeed = AGI * this.size
+    this._pushDeceleration = this.size
+    this._pushMaxSpeed = this.size
   }
   
   /*
@@ -153,8 +154,7 @@ class Entity {
   doMoveDeceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
-    const curMoveSpeed = Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
-    const newMoveSpeed = Math.max(0, curMoveSpeed - moveDeceleration)
+    const newMoveSpeed = Math.max(0, this.moveSpeed - moveDeceleration)
     this.moveX = newMoveSpeed * Math.cos(curRotation)
     this.moveY = newMoveSpeed * Math.sin(curRotation)
   }
@@ -162,8 +162,7 @@ class Entity {
   doPushDeceleration (timeStep) {
     const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
     const curRotation = Math.atan2(this.pushY, this.pushX)
-    const curPushSpeed = Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
-    const newPushSpeed = Math.max(0, curPushSpeed - pushDeceleration)
+    const newPushSpeed = Math.max(0, this.pushSpeed - pushDeceleration)
     this.pushX = newPushSpeed * Math.cos(curRotation)
     this.pushY = newPushSpeed * Math.sin(curRotation)
   }
@@ -318,21 +317,35 @@ class Entity {
     return v
   }
   
-  get moveSpeed () {
-    return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY)
-  }
+  set vertices (val) { console.error('ERROR: Entity.vertices is read only') }
   
-  get moveAngle () {
-    return Math.atan2(this.moveY, this.moveX)
-  }
+  get solid () { return this._solid }
+  get movable () { return this._movable }
+  get mass () {  return this._mass }
+  get moveAcceleration () { return this._moveAcceleration }
+  get moveDeceleration () { return this._moveDeceleration } 
+  get moveMaxSpeed () { return this._moveMaxSpeed }
+  get pushDeceleration () { return this._pushDeceleration }
+  get pushMaxSpeed () { return this._pushMaxSpeed }
   
-  get pushSpeed () {
-    return Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY)
-  }
+  set solid (val) { this._solid = val }
+  set movable (val) { this._movable = val }
+  set mass (val) {  this._mass = val }
+  set moveAcceleration (val) { this._moveAcceleration = val }
+  set moveDeceleration (val) { this._moveDeceleration = val } 
+  set moveMaxSpeed (val) { this._moveMaxSpeed = val }
+  set pushDeceleration (val) { this._pushDeceleration = val }
+  set pushMaxSpeed (val) { this._pushMaxSpeed = val }
   
-  get pushAngle () {
-    return Math.atan2(this.pushY, this.pushX)
-  }
+  get moveSpeed () { return Math.sqrt(this.moveX * this.moveX + this.moveY * this.moveY) }
+  get moveAngle () { return Math.atan2(this.moveY, this.moveX) }
+  get pushSpeed () { return Math.sqrt(this.pushX * this.pushX + this.pushY * this.pushY) }
+  get pushAngle () { return Math.atan2(this.pushY, this.pushX) }
+  
+  set moveSpeed (val) { console.error('ERROR: Entity.moveSpeed is read only') }
+  set moveAngle (val) { console.error('ERROR: Entity.moveAngle is read only') }
+  set pushSpeed (val) { console.error('ERROR: Entity.pushSpeed is read only') }
+  set pushAngle (val) { console.error('ERROR: Entity.pushAngle is read only') }
 }
 
 const CIRCLE_TO_POLYGON_APPROXIMATOR =
