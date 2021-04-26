@@ -47,7 +47,7 @@ export default class Levels {
     app.entities.push(app.hero)
     app.camera.target = app.hero
     
-    app.entities.push(new Goal(app, 11, 20))
+    app.entities.push(new Goal(app, 15, 20))
     
     app.entities.push(new Wall(app, 0, 0, 1, 23))  // West Wall
     app.entities.push(new Wall(app, 22, 0, 1, 23))  // East Wall

@@ -1,11 +1,13 @@
 import { TILE_SIZE, ROTATIONS, DIRECTIONS, SHAPES, PLAYER_ACTIONS, EXPECTED_TIMESTEP } from './constants'
 
+const MAX_SPEED_MODIFIER = 3 / EXPECTED_TIMESTEP
+const ACCELERATION_MODIFIER = 12 / EXPECTED_TIMESTEP
+
 class Entity {
   constructor (app) {
     this._app = app
     
     // General identity stats
-    const AGI = 0.125
     this.colour = '#ccc'
     
     // Expired entities are removed at the end of the cycle.
@@ -29,11 +31,11 @@ class Entity {
     this._solid = true
     this._movable = true
     this._mass = 2  // Only matters if solid && movable
-    this._moveAcceleration = AGI * this.size * 16
-    this._moveDeceleration = AGI * this.size * 16
-    this._moveMaxSpeed = AGI * this.size
-    this._pushDeceleration = this.size
-    this._pushMaxSpeed = this.size
+    this._moveAcceleration = this.size * ACCELERATION_MODIFIER
+    this._moveDeceleration = this.size * ACCELERATION_MODIFIER
+    this._moveMaxSpeed = this.size * MAX_SPEED_MODIFIER
+    this._pushDeceleration = this.size * ACCELERATION_MODIFIER
+    this._pushMaxSpeed = this.size * MAX_SPEED_MODIFIER
   }
   
   /*
