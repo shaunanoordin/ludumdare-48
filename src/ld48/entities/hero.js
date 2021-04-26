@@ -15,6 +15,11 @@ class Hero extends Entity {
     this.health = 3
   }
   
+  /*
+  Section: General Logic
+  ----------------------------------------------------------------------------
+   */
+  
   play (timeStep) {
     const app = this._app
     super.play(timeStep)
@@ -23,12 +28,52 @@ class Hero extends Entity {
     this.processAction(timeStep)
   }
   
-  doMoveDeceleration (timeStep) {
-    // Don't decelerate if moving
-    if (this.action?.name !== 'move') {
-      super.doMoveDeceleration (timeStep)
+  paint (layer = 0) {
+    const app = this._app
+    
+    this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
+      ? '#e42'
+      : '#c44'
+    super.paint(layer)
+    
+    const c2d = app.canvas2d
+    const camera = app.camera
+    const animationSpritesheet = app.assets.hero
+    if (!animationSpritesheet) return
+    
+    const SPRITE_SIZE = 64
+    let SPRITE_OFFSET_X = 0
+    let SPRITE_OFFSET_Y = 0
+
+    const srcSizeX = SPRITE_SIZE
+    const srcSizeY = SPRITE_SIZE
+    const tgtSizeX = SPRITE_SIZE * 1.25
+    const tgtSizeY = SPRITE_SIZE * 1.25
+
+    if (layer === 0) {
+      const srcX = 0
+      const srcY = 0
+      const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
+      const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
+
+      c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
     }
   }
+  
+  /*
+  Section: Game Logic
+  ----------------------------------------------------------------------------
+   */
+  
+  applyEffect (effect, source) {
+    super.applyEffect(effect, source)
+    if (!effect) return
+  }
+  
+  /*
+  Section: Intent and Actions
+  ----------------------------------------------------------------------------
+   */
   
   /*
   Translate intent into action.
@@ -55,6 +100,9 @@ class Hero extends Entity {
     }
   }
   
+  /*
+  Perform the action.
+   */
   processAction (timeStep) {
     if (!this.action) return
     
@@ -110,39 +158,7 @@ class Hero extends Entity {
       name: 'idle',
       counter: 0,
     }
-  }
-  
-  paint (layer = 0) {
-    const app = this._app
-    
-    this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
-      ? '#e42'
-      : '#c44'
-    super.paint(layer)
-    
-    const c2d = app.canvas2d
-    const camera = app.camera
-    const animationSpritesheet = app.assets.hero
-    if (!animationSpritesheet) return
-    
-    const SPRITE_SIZE = 64
-    let SPRITE_OFFSET_X = 0
-    let SPRITE_OFFSET_Y = 0
-
-    const srcSizeX = SPRITE_SIZE
-    const srcSizeY = SPRITE_SIZE
-    const tgtSizeX = SPRITE_SIZE * 1.25
-    const tgtSizeY = SPRITE_SIZE * 1.25
-
-    if (layer === 0) {
-      const srcX = 0
-      const srcY = 0
-      const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
-      const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
-
-      c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
-    }
-  }
+  }  
 }
   
 export default Hero

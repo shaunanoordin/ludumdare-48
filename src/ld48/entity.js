@@ -140,12 +140,15 @@ class Entity {
   }
   
   /*
-  Section: Common Physics
+  Section: Physics
   ----------------------------------------------------------------------------
    */
   
   /*
-  
+  By default, every moving entity decelerates (because we don't exist in a
+  perfect vacuum and the game doesn't take place on a slippery ice).
+  Entities can intentionally override this logic,
+  e.g. "if a hero is walking, ignore deceleration."
    */
   doMoveDeceleration (timeStep) {
     const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
@@ -165,6 +168,10 @@ class Entity {
     this.pushY = newPushSpeed * Math.sin(curRotation)
   }
   
+  /*
+  Every entity has a maximum speed limit. Intentional movement speed and
+  external force movement speed are treated separately.
+   */
   doMaxSpeedLimit (timeStep) {
     // Limit max move speed
     if (this.moveMaxSpeed >= 0) {
@@ -185,6 +192,7 @@ class Entity {
   
   /*
   When a solid pushed entity hits another solid entity, momentum is transferred.
+  Usually, this leads to elastic collisions, because that chaos is fun!
    */
   doBounce (target, collisionCorrection) {
     if (
