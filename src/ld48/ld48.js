@@ -279,7 +279,8 @@ class LD48 {
       ) {
         intent = {
           name: 'dash',
-          attr: { moveX, moveY },
+          moveX,
+          moveY,
         }
         if (keysPressed['x']) keysPressed['x'].acknowledged = true
         if (keysPressed['X']) keysPressed['X'].acknowledged = true
@@ -287,7 +288,8 @@ class LD48 {
       } else if (moveX || moveY) {
         intent = {
           name: 'move',
-          attr: { moveX, moveY },
+          moveX,
+          moveY,
         }
       }
   

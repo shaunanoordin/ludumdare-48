@@ -26,7 +26,9 @@ class Shot extends Entity {
   onCollision (target, collisionCorrection) {
     super.onCollision(target, collisionCorrection)
     if (this.source !== target) {
-      console.log('gone!')
+      target.applyEffect({
+        name: 'damage',
+      }, this)
       this._expired = true
     }
   }

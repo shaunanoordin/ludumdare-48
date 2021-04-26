@@ -46,9 +46,9 @@ class Hero extends Entity {
       
       if (action?.name === 'idle' || action?.name === 'move' )  {  // Can the action be overwritten by a new action? If not, the action must play through to its finish.
         this.action = {
+          ...intent,
           name: intent.name,
-          counter: (action.name === intent.name) ? action.counter : 0,  // If the current action and new intent have the same name, it's just a continuation of the idle or move action, but with new attr values (e.g. new directions)
-          attr: (intent.attr) ? { ...intent.attr } : {}
+          counter: (action.name === intent.name) ? action.counter : 0,  // If the current action and new intent have the same name, it's just a continuation of the idle or move action, but with other new values (e.g. new directions)
         }
       }
     }
@@ -66,9 +66,9 @@ class Hero extends Entity {
     } else if (action.name === 'move') {
       
       const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
-      const attrMoveX = action.attr?.moveX || 0
-      const attrMoveY = action.attr?.moveY || 0
-      const actionRotation = Math.atan2(attrMoveY, attrMoveX)
+      const actMoveX = action.moveX || 0
+      const actMoveY = action.moveY || 0
+      const actionRotation = Math.atan2(actMoveY, actMoveX)
       let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
       let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
 
@@ -82,22 +82,22 @@ class Hero extends Entity {
       const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
       const PUSH_IMPULSE = this.size * 16
       
-      if (!this.action.attr.acknowledged) {
-        const moveX = action.attr.moveX  || 0
-        const moveY = action.attr.moveY  || 0
-        this.rotation = (action.attr.moveX === 0 && action.attr.moveY === 0)
+      if (!this.action.acknowledged) {
+        const moveX = action.moveX  || 0
+        const moveY = action.moveY  || 0
+        this.rotation = (action.moveX === 0 && action.moveY === 0)
           ? this.rotation
           : Math.atan2(moveY, moveX)
-        action.attr.acknowledged = true
-        action.attr.rotation = this.rotation
+        action.acknowledged = true
+        action.rotation = this.rotation
       }
       
       let pushPower = Math.min(
         PUSH_IMPULSE * timeStep / 1000,
         MAX_DISTANCE - action.counter
       )
-      this.pushX += pushPower  * Math.cos(action.attr.rotation)
-      this.pushY += pushPower * Math.sin(action.attr.rotation)
+      this.pushX += pushPower  * Math.cos(action.rotation)
+      this.pushY += pushPower * Math.sin(action.rotation)
       action.counter += pushPower
             
       if (action.counter >= MAX_DISTANCE) {
@@ -110,7 +110,6 @@ class Hero extends Entity {
     this.action = {
       name: 'idle',
       counter: 0,
-      attr: {},
     }
   }
   
