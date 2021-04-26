@@ -146,19 +146,48 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
-      const PUSH_IMPULSE = this.size * 32
+      const WINDUP_DURATION = 500
+      const EXECUTION_DURATION = 500
+      const WINDDOWN_DURATION = 500
       
-      if (!this.action.acknowledged) {  // Trigger only once, at the start of the action: figure out the initial direction of the dash
+      if (!action.state) {  // Trigger only once, at the start of the action
+        
+        // Figure out the initial direction of the dash
         const directionX = action.directionX  || 0
         const directionY = action.directionY  || 0
-        this.rotation = (directionX === 0 && directionY === 0)  // Rotate the entity in the direction of the dash. (Entity can later change orientation mid-dash, but the dash direction shouldn't change.)
+        this.rotation = (directionX === 0 && directionY === 0)
           ? this.rotation
           : Math.atan2(directionY, directionX)
-        action.acknowledged = true
-        action.rotation = this.rotation  // Records the direction of the dash
+        action.rotation = this.rotation  // Records the initial direction of the dash
+        
+        action.debug = 0
+        action.state = 'windup'
       }
       
+      if (action.state === 'windup') {
+        console.log('+++ dash - windup')
+        action.counter += timeStep
+        if (action.counter >= WINDUP_DURATION) {
+          action.state = 'execution'
+          action.counter = 0
+        }
+      } else if (action.state === 'execution') {
+        console.log('+++ dash!!!')
+        
+        action.counter += timeStep
+        if (action.counter >= WINDUP_DURATION) {
+          action.state = 'winddown'
+          action.counter = 0
+        }
+      } else if (action.state === 'winddown') {
+        console.log('+++ dash - winddown')
+        action.counter += timeStep
+        if (action.counter >= WINDUP_DURATION) {
+          this.goIdle()
+        }
+      }
+      
+      /*
       let pushPower = Math.min(
         PUSH_IMPULSE * timeStep / 1000,
         MAX_DISTANCE - action.counter
@@ -170,6 +199,7 @@ class Hero extends Entity {
       if (action.counter >= MAX_DISTANCE) {
         this.goIdle()
       }
+      */
     }
   }
   
