@@ -227,8 +227,8 @@ class LD48 {
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
 
-      const health = this.hero?.health || 0
-      let text = '❤️'.repeat(health) 
+      const health = Math.max(this.hero?.health, 0) || 0
+      let text = '❤️'.repeat(health)
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)

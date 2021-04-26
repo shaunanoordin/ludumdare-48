@@ -1,6 +1,8 @@
 import Entity from '../entity'
 import { PLAYER_ACTIONS, TILE_SIZE } from '../constants'
 
+const INVULNERABILITY_WINDOW = 3000
+
 class Hero extends Entity {
   constructor (app, col = 0, row = 0) {
     super(app)
@@ -13,6 +15,7 @@ class Hero extends Entity {
     this.action = undefined
     
     this.health = 3
+    this.invulnerability = 0  // Invulnerability time
   }
   
   /*
@@ -26,10 +29,20 @@ class Hero extends Entity {
     
     this.processIntent()
     this.processAction(timeStep)
+    
+    // Count down invulnerability time
+    if (this.invulnerability > 0) {
+      this.invulnerability = Math.max(this.invulnerability - timeStep, 0)
+    }
   }
   
   paint (layer = 0) {
     const app = this._app
+    
+    if (this.invulnerability > 0) {  // If invulnerable, flash!
+      const flash = Math.floor(this.invulnerability / 300) % 2
+      if (flash === 1) return
+    }
     
     this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
       ? '#e42'
@@ -68,6 +81,13 @@ class Hero extends Entity {
   applyEffect (effect, source) {
     super.applyEffect(effect, source)
     if (!effect) return
+    
+    if (effect.name === 'damage') {
+      if (this.invulnerability === 0) {
+        this.health = Math.max(this.health - 1, 0)
+        this.invulnerability = INVULNERABILITY_WINDOW
+      }
+    }
   }
   
   /*
@@ -110,7 +130,7 @@ class Hero extends Entity {
     
     if (action.name === 'idle') {
       
-      // Idle
+      // Do nothing
       
     } else if (action.name === 'move') {
       

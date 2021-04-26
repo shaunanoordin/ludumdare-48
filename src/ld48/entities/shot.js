@@ -24,7 +24,7 @@ class Shot extends Entity {
   
   onCollision (target, collisionCorrection) {
     super.onCollision(target, collisionCorrection)
-    if (this.source !== target) {
+    if (this.source !== target && target.solid) {
       target.applyEffect({
         name: 'damage',
       }, this)
