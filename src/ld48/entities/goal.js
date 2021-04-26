@@ -32,8 +32,8 @@ class Goal extends Entity {
     }
   }
   
-  paint () {
-    super.paint()
+  paint (layer = 0) {
+    super.paint(layer)
     
     const app = this._app
     const c2d = app.canvas2d

@@ -8,7 +8,6 @@ class Coin extends Entity {
     this.colour = '#864'
     this.x = col * TILE_SIZE + TILE_SIZE / 2
     this.y = row * TILE_SIZE + TILE_SIZE / 2
-    this.z = 70
     
     this.solid = false
     
@@ -38,33 +37,9 @@ class Coin extends Entity {
     }
   }
   
-  paint () {
+  paint (layer = 0) {
     if (!this.pickedUp) {
-      super.paint()
-    }
-    
-    const app = this._app
-    const c2d = app.canvas2d
-    const camera = app.camera
-    const animationSpritesheet = app.assets.coin
-    if (!animationSpritesheet) return
-    
-    if (animationSpritesheet) {
-      const SPRITE_SIZE = 32
-      let SPRITE_OFFSET_X = 0
-      let SPRITE_OFFSET_Y = 0
-
-      const srcSizeX = SPRITE_SIZE
-      const srcSizeY = SPRITE_SIZE
-      let srcX = (!this.pickedUp) ? 0 : SPRITE_SIZE 
-      let srcY = 0
-
-      const tgtSizeX = SPRITE_SIZE * 1.25
-      const tgtSizeY = SPRITE_SIZE * 1.25
-      const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
-      const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
-      
-      c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
+      super.paint(layer)
     }
   }
 }

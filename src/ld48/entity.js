@@ -10,7 +10,6 @@ class Entity {
     // Positional data
     this.x = 0
     this.y = 0
-    this.z = 0  // Only relevant to paint(), not to physics
     this.size = TILE_SIZE
     this._rotation = ROTATIONS.SOUTH  // Rotation in radians
     
@@ -36,6 +35,11 @@ class Entity {
     this.colour = '#ccc'
   }
   
+  /*
+  Section: General Logic
+  ----------------------------------------------------------------------------
+   */
+  
   play (timeStep) {
     // Update position
     const timeCorrection = (timeStep / EXPECTED_TIMESTEP)
@@ -51,67 +55,63 @@ class Entity {
   }
   
   /*
-  Section: Paint
-  ----------------------------------------------------------------------------
+  Paints entity's hitbox.
    */
-  
-  paint () {
-    this.paint_outline()
-  }
-  
-  paint_outline () {
+  paint (layer = 0) {
     const c2d = this._app.canvas2d
     const camera = this._app.camera
     
-    c2d.fillStyle = this.colour
-    c2d.strokeStyle = '#444'
-    c2d.lineWidth = this.mass
-    
-    // Draw shape outline
-    switch (this.shape) {
-    case SHAPES.CIRCLE:
-      c2d.beginPath()
-      c2d.arc(this.x + camera.x, this.y + camera.y, this.size / 2, 0, 2 * Math.PI)
-      c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
-    case SHAPES.SQUARE:
-      c2d.beginPath()
-      c2d.rect(this.x + camera.x - this.size / 2, this.y + camera.y - this.size / 2, this.size, this.size)
-      c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
-    case SHAPES.POLYGON:
-      c2d.beginPath()
-      let coords = this.vertices
-      if (coords.length >= 1) c2d.moveTo(coords[coords.length-1].x + camera.x, coords[coords.length-1].y + camera.y)
-      for (let i = 0 ; i < coords.length ; i++) {
-        c2d.lineTo(coords[i].x + camera.x, coords[i].y + camera.y)
+    if (layer === 0) {
+      c2d.fillStyle = this.colour
+      c2d.strokeStyle = '#444'
+      c2d.lineWidth = this.mass
+
+      // Draw shape outline
+      switch (this.shape) {
+      case SHAPES.CIRCLE:
+        c2d.beginPath()
+        c2d.arc(this.x + camera.x, this.y + camera.y, this.size / 2, 0, 2 * Math.PI)
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
+      case SHAPES.SQUARE:
+        c2d.beginPath()
+        c2d.rect(this.x + camera.x - this.size / 2, this.y + camera.y - this.size / 2, this.size, this.size)
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
+      case SHAPES.POLYGON:
+        c2d.beginPath()
+        let coords = this.vertices
+        if (coords.length >= 1) c2d.moveTo(coords[coords.length-1].x + camera.x, coords[coords.length-1].y + camera.y)
+        for (let i = 0 ; i < coords.length ; i++) {
+          c2d.lineTo(coords[i].x + camera.x, coords[i].y + camera.y)
+        }
+        c2d.closePath()
+        c2d.fill()
+        this.solid && c2d.stroke()
+        break
       }
+
+      // Draw anchor point, mostly for debugging
+      c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
+      c2d.beginPath()
+      c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
+      if (this.shape === SHAPES.CIRCLE) {  // Direction line
+        c2d.moveTo(
+          this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
+          this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
+        )
+        c2d.lineTo(
+          this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
+          this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
+        )
+      }
+      c2d.stroke()
       c2d.closePath()
-      c2d.fill()
-      this.solid && c2d.stroke()
-      break
     }
-    
-    // Draw anchor point, mostly for debugging
-    c2d.strokeStyle = 'rgba(255, 255, 255, 0.5)'
-    c2d.beginPath()
-    c2d.arc(this.x + camera.x, this.y + camera.y, 2, 0, 2 * Math.PI)  // Anchor point
-    if (this.shape === SHAPES.CIRCLE) {  // Direction line
-      c2d.moveTo(
-        this.x + this.size * 0.1 * Math.cos(this.rotation) + camera.x,
-        this.y + this.size * 0.1 * Math.sin(this.rotation) + camera.y
-      )
-      c2d.lineTo(
-        this.x + this.size * 0.5 * Math.cos(this.rotation) + camera.x,
-        this.y + this.size * 0.5 * Math.sin(this.rotation) + camera.y
-      )
-    }
-    c2d.stroke()
-    c2d.closePath()
   }
   
   /*

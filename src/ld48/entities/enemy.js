@@ -9,7 +9,6 @@ class Enemy extends Entity {
     this.colour = '#4c4'
     this.x = col * TILE_SIZE + TILE_SIZE / 2
     this.y = row * TILE_SIZE + TILE_SIZE / 2
-    this.z = 100
     
     this.action = {
       name: 'shoot',

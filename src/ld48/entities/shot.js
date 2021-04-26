@@ -14,7 +14,6 @@ class Shot extends Entity {
     this.size = TILE_SIZE / 2
     this.x = x
     this.y = y
-    this.z = 80
     
     this.rotation = rotation
     this.moveAcceleration = this.size * 2

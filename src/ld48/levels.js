@@ -31,9 +31,6 @@ export default class Levels {
     
     this.reset()
     this.generate_default()
-    
-    // Rearrange: 
-    app.entities.sort((a, b) => a.z - b.z)
   }
   
   reload () {

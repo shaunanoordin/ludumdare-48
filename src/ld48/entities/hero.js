@@ -8,7 +8,6 @@ class Hero extends Entity {
     this.colour = '#000'
     this.x = col * TILE_SIZE + TILE_SIZE / 2
     this.y = row * TILE_SIZE + TILE_SIZE / 2
-    this.z = 100
     
     this.intent = undefined
     this.action = undefined
@@ -111,13 +110,13 @@ class Hero extends Entity {
     }
   }
   
-  paint () {
+  paint (layer = 0) {
     const app = this._app
     
     this.colour = (app.playerAction === PLAYER_ACTIONS.POINTER_DOWN)
       ? '#e42'
       : '#c44'
-    super.paint()
+    super.paint(layer)
     
     const c2d = app.canvas2d
     const camera = app.camera
@@ -130,15 +129,17 @@ class Hero extends Entity {
 
     const srcSizeX = SPRITE_SIZE
     const srcSizeY = SPRITE_SIZE
-    let srcX = 0
-    let srcY = 0
-
     const tgtSizeX = SPRITE_SIZE * 1.25
     const tgtSizeY = SPRITE_SIZE * 1.25
-    const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
-    const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
 
-    c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
+    if (layer === 0) {
+      const srcX = 0
+      const srcY = 0
+      const tgtX = Math.floor(this.x + camera.x) - srcSizeX / 2 + SPRITE_OFFSET_X - (tgtSizeX - srcSizeX) / 2
+      const tgtY = Math.floor(this.y + camera.y) - srcSizeY / 2 + SPRITE_OFFSET_Y - (tgtSizeY - srcSizeY) / 2
+
+      c2d.drawImage(animationSpritesheet.img, srcX, srcY, srcSizeX, srcSizeY, tgtX, tgtY, tgtSizeX, tgtSizeY)
+    }
   }
 }
   

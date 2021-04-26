@@ -193,7 +193,10 @@ class LD48 {
 
     // Draw entities
     // ----------------
-    this.entities.forEach(entity => entity.paint())
+    const MAX_LAYER = 2
+    for (let layer = 0 ; layer < MAX_LAYER ; layer++) {
+      this.entities.forEach(entity => entity.paint(layer))
+    }
     // ----------------
     
     // Draw player input
