@@ -147,7 +147,7 @@ class Hero extends Entity {
       
     } else if (action.name === 'dash') {
       const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
-      const PUSH_IMPULSE = this.size * 16
+      const PUSH_IMPULSE = this.size * 32
       
       if (!this.action.acknowledged) {  // Trigger only once, at the start of the action: figure out the initial direction of the dash
         const directionX = action.directionX  || 0
@@ -179,17 +179,34 @@ class Hero extends Entity {
       counter: 0,
     }
   }
-  
+
   /*
-  Section: Physics
+  Section: Event Handling
   ----------------------------------------------------------------------------
    */
   
-  doMoveDeceleration (timeStep) {
-    // Don't decelerate if moving
-    if (this.action?.name !== 'move') {
-      super.doMoveDeceleration (timeStep)
-    }
+  /*
+  Triggers when this entity hits/touches/intersects with another.
+   */
+  onCollision (target, collisionCorrection) {
+    super.onCollision(target, collisionCorrection)
+    if (!target) return
+    if (target.solid && this.action?.name === 'dash') this.goIdle()
+  }
+  
+  /*
+  Section: Physics/Getters and Setters
+  ----------------------------------------------------------------------------
+   */
+        
+  get moveDeceleration () {
+    if (this.action?.name === 'move') return 0
+    return this._moveDeceleration
+  }
+         
+  get pushDeceleration () {
+    if (this.action?.name === 'dash') return 0
+    return this._pushDeceleration
   }
 }
   
