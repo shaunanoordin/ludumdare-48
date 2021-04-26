@@ -43,11 +43,11 @@ export default class Levels {
   generate_default () {
     const app = this._app
     
-    app.hero = new Hero(app, 11, 1)
+    app.hero = new Hero(app, 11, 2)
     app.entities.push(app.hero)
     app.camera.target = app.hero
     
-    app.entities.push(new Goal(app, 19, 3))
+    app.entities.push(new Goal(app, 11, 12))
     
     app.entities.push(new Wall(app, 0, 0, 1, 15))  // West Wall
     app.entities.push(new Wall(app, 22, 0, 1, 15))  // East Wall
@@ -59,7 +59,7 @@ export default class Levels {
     
     app.entities.push(new Ball(app, 8, 6))
     
-    const enemy = new Enemy(app, 4, 11)
+    const enemy = new Enemy(app, 4, 8)
     enemy.direction = DIRECTIONS.EAST
     app.entities.push(enemy)
   }
