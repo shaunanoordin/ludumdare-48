@@ -66,14 +66,12 @@ class Hero extends Entity {
     } else if (action.name === 'move') {
       
       const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
-      const actMoveX = action.moveX || 0
-      const actMoveY = action.moveY || 0
-      const actionRotation = Math.atan2(actMoveY, actMoveX)
-      let moveX = this.moveX + moveAcceleration * Math.cos(actionRotation)
-      let moveY = this.moveY + moveAcceleration * Math.sin(actionRotation)
+      const directionX = action.directionX || 0
+      const directionY = action.directionY || 0
+      const actionRotation = Math.atan2(directionY, directionX)
 
-      this.moveX = moveX
-      this.moveY = moveY
+      this.moveX += moveAcceleration * Math.cos(actionRotation)
+      this.moveY += moveAcceleration * Math.sin(actionRotation)
       this.rotation = actionRotation
       
       action.counter += timeStep
@@ -82,14 +80,14 @@ class Hero extends Entity {
       const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
       const PUSH_IMPULSE = this.size * 16
       
-      if (!this.action.acknowledged) {
-        const moveX = action.moveX  || 0
-        const moveY = action.moveY  || 0
-        this.rotation = (action.moveX === 0 && action.moveY === 0)
+      if (!this.action.acknowledged) {  // Trigger only once, at the start of the action: figure out the initial direction of the dash
+        const directionX = action.directionX  || 0
+        const directionY = action.directionY  || 0
+        this.rotation = (directionX === 0 && directionY === 0)  // Rotate the entity in the direction of the dash. (Entity can later change orientation mid-dash, but the dash direction shouldn't change.)
           ? this.rotation
-          : Math.atan2(moveY, moveX)
+          : Math.atan2(directionY, directionX)
         action.acknowledged = true
-        action.rotation = this.rotation
+        action.rotation = this.rotation  // Records the direction of the dash
       }
       
       let pushPower = Math.min(

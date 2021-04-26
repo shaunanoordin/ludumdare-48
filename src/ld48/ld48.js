@@ -265,13 +265,13 @@ class LD48 {
     if (this.hero) {
       const keysPressed = this.playerInput.keysPressed
       let intent = undefined
-      let moveX = 0
-      let moveY = 0
+      let directionX = 0
+      let directionY = 0
       
-      if (keysPressed['ArrowRight']) moveX++
-      if (keysPressed['ArrowDown']) moveY++
-      if (keysPressed['ArrowLeft']) moveX--
-      if (keysPressed['ArrowUp']) moveY--
+      if (keysPressed['ArrowRight']) directionX++
+      if (keysPressed['ArrowDown']) directionY++
+      if (keysPressed['ArrowLeft']) directionX--
+      if (keysPressed['ArrowUp']) directionY--
       
       if (
         (keysPressed['x'] && !keysPressed['x'].acknowledged)
@@ -279,17 +279,17 @@ class LD48 {
       ) {
         intent = {
           name: 'dash',
-          moveX,
-          moveY,
+          directionX,
+          directionY,
         }
         if (keysPressed['x']) keysPressed['x'].acknowledged = true
         if (keysPressed['X']) keysPressed['X'].acknowledged = true
       
-      } else if (moveX || moveY) {
+      } else if (directionX || directionY) {
         intent = {
           name: 'move',
-          moveX,
-          moveY,
+          directionX,
+          directionY,
         }
       }
   
