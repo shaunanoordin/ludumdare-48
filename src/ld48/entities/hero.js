@@ -11,6 +11,8 @@ class Hero extends Entity {
     
     this.intent = undefined
     this.action = undefined
+    
+    this.health = 3
   }
   
   play (timeStep) {

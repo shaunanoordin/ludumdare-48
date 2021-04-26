@@ -227,12 +227,20 @@ class LD48 {
       c2d.textBaseline = 'bottom'
       c2d.lineWidth = 8
 
-      const text = this.hero?.action?.name + ' - ' + this.hero?.moveSpeed?.toFixed() + ' - ' + this.hero?.pushSpeed?.toFixed()
+      const health = this.hero?.health || 0
+      let text = '❤️'.repeat(health) 
       c2d.textAlign = 'left'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
       c2d.fillStyle = '#c44'
       c2d.fillText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      
+      text = this.hero?.action?.name
+      c2d.textAlign = 'right'
+      c2d.strokeStyle = '#fff'
+      c2d.strokeText(text, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
+      c2d.fillStyle = '#c44'
+      c2d.fillText(text, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
     }
     // ----------------
     
