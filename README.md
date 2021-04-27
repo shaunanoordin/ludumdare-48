@@ -1,6 +1,8 @@
 # Ludum Dare 48
 
-This is a game for the Ludum Dare 48 game jam!
+This is a game for the Ludum Dare 48 game jam! As of the game jam deadline (2am BST, 27 Apr 2021), this game is **incomplete,** but progress made and ideas discovered during this game jam will contribute to future projects.
+
+Original code was based on [CNY2021](https://github.com/shaunanoordin/cny2021) and [AvO mk2](https://github.com/shaunanoordin/avo-adventure-mk2/).
 
 Created by [Shaun A. Noordin](https://shaunanoordin.com).
 
