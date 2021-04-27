@@ -47,19 +47,19 @@ export default class Levels {
     app.entities.push(app.hero)
     app.camera.target = app.hero
     
-    app.entities.push(new Goal(app, 19, 3))
+    app.entities.push(new Goal(app, 15, 20))
     
-    app.entities.push(new Wall(app, 0, 0, 1, 15))  // West Wall
-    app.entities.push(new Wall(app, 22, 0, 1, 15))  // East Wall
+    app.entities.push(new Wall(app, 0, 0, 1, 23))  // West Wall
+    app.entities.push(new Wall(app, 22, 0, 1, 23))  // East Wall
     app.entities.push(new Wall(app, 1, 0, 21, 1))  // North Wall
-    app.entities.push(new Wall(app, 1, 14, 21, 1))  // South Wall
+    app.entities.push(new Wall(app, 1, 22, 21, 1))  // South Wall
     
     app.entities.push(new Wall(app, 3, 2, 3, 1))
     app.entities.push(new Wall(app, 3, 4, 3, 1))
     
     app.entities.push(new Ball(app, 8, 6))
     
-    const enemy = new Enemy(app, 4, 11)
+    const enemy = new Enemy(app, 4, 8)
     enemy.direction = DIRECTIONS.EAST
     app.entities.push(enemy)
   }

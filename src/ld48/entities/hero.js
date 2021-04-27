@@ -1,5 +1,5 @@
 import Entity from '../entity'
-import { PLAYER_ACTIONS, TILE_SIZE } from '../constants'
+import { PLAYER_ACTIONS, TILE_SIZE, EXPECTED_TIMESTEP } from '../constants'
 
 const INVULNERABILITY_WINDOW = 3000
 
@@ -134,7 +134,7 @@ class Hero extends Entity {
       
     } else if (action.name === 'move') {
       
-      const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
+      const moveAcceleration = this.moveAcceleration * timeStep / EXPECTED_TIMESTEP || 0
       const directionX = action.directionX || 0
       const directionY = action.directionY || 0
       const actionRotation = Math.atan2(directionY, directionX)
@@ -146,19 +146,50 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const MAX_DISTANCE = this.size * 0.5  // Use distance, not time, to consistently track progress.
-      const PUSH_IMPULSE = this.size * 16
+      const WINDUP_DURATION = EXPECTED_TIMESTEP * 5
+      const EXECUTION_DURATION = EXPECTED_TIMESTEP * 2
+      const WINDDOWN_DURATION = EXPECTED_TIMESTEP * 10
+      const PUSH_POWER = this.size * 0.3
+      const MAX_PUSH = EXECUTION_DURATION / 1000 * 60 * PUSH_POWER
       
-      if (!this.action.acknowledged) {  // Trigger only once, at the start of the action: figure out the initial direction of the dash
+      if (!action.state) {  // Trigger only once, at the start of the action
+        
+        // Figure out the initial direction of the dash
         const directionX = action.directionX  || 0
         const directionY = action.directionY  || 0
-        this.rotation = (directionX === 0 && directionY === 0)  // Rotate the entity in the direction of the dash. (Entity can later change orientation mid-dash, but the dash direction shouldn't change.)
+        this.rotation = (directionX === 0 && directionY === 0)
           ? this.rotation
           : Math.atan2(directionY, directionX)
-        action.acknowledged = true
-        action.rotation = this.rotation  // Records the direction of the dash
+        action.rotation = this.rotation  // Records the initial direction of the dash
+        
+        action.state = 'windup'
       }
       
+      if (action.state === 'windup') {
+        action.counter += timeStep
+        if (action.counter >= WINDUP_DURATION) {
+          action.state = 'execution'
+          action.counter = 0
+        }
+      } else if (action.state === 'execution') {
+        const modifiedTimeStep = Math.min(timeStep, EXECUTION_DURATION - action.counter)
+        const pushPower = PUSH_POWER * modifiedTimeStep / EXPECTED_TIMESTEP
+        this.pushX += pushPower * Math.cos(action.rotation)
+        this.pushY += pushPower * Math.sin(action.rotation)
+        
+        action.counter += modifiedTimeStep
+        if (action.counter >= EXECUTION_DURATION) {
+          action.state = 'winddown'
+          action.counter = 0
+        }
+      } else if (action.state === 'winddown') {
+        action.counter += timeStep
+        if (action.counter >= WINDDOWN_DURATION) {
+          this.goIdle()
+        }
+      }
+      
+      /*
       let pushPower = Math.min(
         PUSH_IMPULSE * timeStep / 1000,
         MAX_DISTANCE - action.counter
@@ -170,6 +201,7 @@ class Hero extends Entity {
       if (action.counter >= MAX_DISTANCE) {
         this.goIdle()
       }
+      */
     }
   }
   
@@ -179,17 +211,34 @@ class Hero extends Entity {
       counter: 0,
     }
   }
-  
+
   /*
-  Section: Physics
+  Section: Event Handling
   ----------------------------------------------------------------------------
    */
   
-  doMoveDeceleration (timeStep) {
-    // Don't decelerate if moving
-    if (this.action?.name !== 'move') {
-      super.doMoveDeceleration (timeStep)
-    }
+  /*
+  Triggers when this entity hits/touches/intersects with another.
+   */
+  onCollision (target, collisionCorrection) {
+    super.onCollision(target, collisionCorrection)
+    if (!target) return
+    // if (target.solid && this.action?.name === 'dash') this.goIdle()
+  }
+  
+  /*
+  Section: Physics/Getters and Setters
+  ----------------------------------------------------------------------------
+   */
+  
+  get moveDeceleration () {
+    if (this.action?.name === 'move') return 0
+    return this._moveDeceleration
+  }
+  
+  get pushDeceleration () {
+    if (this.action?.name === 'dash' && this.action?.state === 'execution') return 0
+    return this._pushDeceleration
   }
 }
   

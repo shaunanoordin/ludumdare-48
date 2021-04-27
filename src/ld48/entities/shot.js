@@ -1,5 +1,5 @@
 import Entity from '../entity'
-import { TILE_SIZE } from '../constants'
+import { TILE_SIZE, EXPECTED_TIMESTEP } from '../constants'
 
 class Shot extends Entity {
   constructor (app, x = 0, y = 0, rotation = 0, source = undefined) {
@@ -16,7 +16,7 @@ class Shot extends Entity {
     this.y = y
     
     this.rotation = rotation
-    this.moveAcceleration = this.size * 2
+    this.moveAcceleration = 1
     this.moveDeceleration = 0
     this.moveMaxSpeed = this.size * 2
     this.distance = this.size * 1
@@ -36,7 +36,7 @@ class Shot extends Entity {
     super.play(timeStep)
     const app = this._app
     
-    const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
+    const moveAcceleration = this.moveAcceleration * timeStep / EXPECTED_TIMESTEP || 0
     this.moveX += moveAcceleration * Math.cos(this.rotation)
     this.moveY = moveAcceleration * Math.sin(this.rotation)
     
