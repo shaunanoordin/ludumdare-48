@@ -16,11 +16,6 @@ class Hero extends Entity {
     
     this.health = 3
     this.invulnerability = 0  // Invulnerability time
-    
-    console.log('+++ moveMaxSpeed: ', this._moveMaxSpeed)
-    console.log('+++ moveAcceleration: ', this._moveAcceleration)
-    console.log('+++ moveAcceleration: ', this._moveDeceleration)
-
   }
   
   /*
@@ -151,10 +146,10 @@ class Hero extends Entity {
       action.counter += timeStep
       
     } else if (action.name === 'dash') {
-      const WINDUP_DURATION = 500
-      const EXECUTION_DURATION = 500
-      const WINDDOWN_DURATION = 500
-      const PUSH_POWER = this.size
+      const WINDUP_DURATION = EXPECTED_TIMESTEP * 5
+      const EXECUTION_DURATION = EXPECTED_TIMESTEP * 2
+      const WINDDOWN_DURATION = EXPECTED_TIMESTEP * 10
+      const PUSH_POWER = this.size * 0.3
       const MAX_PUSH = EXECUTION_DURATION / 1000 * 60 * PUSH_POWER
       
       if (!action.state) {  // Trigger only once, at the start of the action
@@ -167,37 +162,29 @@ class Hero extends Entity {
           : Math.atan2(directionY, directionX)
         action.rotation = this.rotation  // Records the initial direction of the dash
         
-        action.debug = 0
         action.state = 'windup'
       }
       
       if (action.state === 'windup') {
-        console.log('+++ dash - windup')
         action.counter += timeStep
         if (action.counter >= WINDUP_DURATION) {
           action.state = 'execution'
           action.counter = 0
         }
       } else if (action.state === 'execution') {
-        console.log('+++ dash!!!')
-        
-        let pushPower = PUSH_POWER * timeStep / EXPECTED_TIMESTEP
-        pushPower = Math.min(pushPower, MAX_PUSH - pushPower)
-        
+        const modifiedTimeStep = Math.min(timeStep, EXECUTION_DURATION - action.counter)
+        const pushPower = PUSH_POWER * modifiedTimeStep / EXPECTED_TIMESTEP
         this.pushX += pushPower * Math.cos(action.rotation)
         this.pushY += pushPower * Math.sin(action.rotation)
-        action.debug += pushPower
         
-        action.counter += timeStep
-        if (action.counter >= WINDUP_DURATION) {
-          console.log('+++ debug: ', action.debug)
+        action.counter += modifiedTimeStep
+        if (action.counter >= EXECUTION_DURATION) {
           action.state = 'winddown'
           action.counter = 0
         }
       } else if (action.state === 'winddown') {
-        console.log('+++ dash - winddown')
         action.counter += timeStep
-        if (action.counter >= WINDUP_DURATION) {
+        if (action.counter >= WINDDOWN_DURATION) {
           this.goIdle()
         }
       }
@@ -236,7 +223,7 @@ class Hero extends Entity {
   onCollision (target, collisionCorrection) {
     super.onCollision(target, collisionCorrection)
     if (!target) return
-    if (target.solid && this.action?.name === 'dash') this.goIdle()
+    // if (target.solid && this.action?.name === 'dash') this.goIdle()
   }
   
   /*
@@ -250,7 +237,7 @@ class Hero extends Entity {
   }
   
   get pushDeceleration () {
-    // if (this.action?.name === 'dash') return 0
+    if (this.action?.name === 'dash' && this.action?.state === 'execution') return 0
     return this._pushDeceleration
   }
 }
