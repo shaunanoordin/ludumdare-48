@@ -1,5 +1,5 @@
 import Entity from '../entity'
-import { PLAYER_ACTIONS, TILE_SIZE } from '../constants'
+import { PLAYER_ACTIONS, TILE_SIZE, EXPECTED_TIMESTEP } from '../constants'
 
 const INVULNERABILITY_WINDOW = 3000
 
@@ -16,6 +16,11 @@ class Hero extends Entity {
     
     this.health = 3
     this.invulnerability = 0  // Invulnerability time
+    
+    console.log('+++ moveMaxSpeed: ', this._moveMaxSpeed)
+    console.log('+++ moveAcceleration: ', this._moveAcceleration)
+    console.log('+++ moveAcceleration: ', this._moveDeceleration)
+
   }
   
   /*
@@ -134,7 +139,7 @@ class Hero extends Entity {
       
     } else if (action.name === 'move') {
       
-      const moveAcceleration = this.moveAcceleration * timeStep / 1000 || 0
+      const moveAcceleration = this.moveAcceleration * timeStep / EXPECTED_TIMESTEP || 0
       const directionX = action.directionX || 0
       const directionY = action.directionY || 0
       const actionRotation = Math.atan2(directionY, directionX)
@@ -149,6 +154,8 @@ class Hero extends Entity {
       const WINDUP_DURATION = 500
       const EXECUTION_DURATION = 500
       const WINDDOWN_DURATION = 500
+      const PUSH_POWER = this.size
+      const MAX_PUSH = EXECUTION_DURATION / 1000 * 60 * PUSH_POWER
       
       if (!action.state) {  // Trigger only once, at the start of the action
         
@@ -174,8 +181,16 @@ class Hero extends Entity {
       } else if (action.state === 'execution') {
         console.log('+++ dash!!!')
         
+        let pushPower = PUSH_POWER * timeStep / EXPECTED_TIMESTEP
+        pushPower = Math.min(pushPower, MAX_PUSH - pushPower)
+        
+        this.pushX += pushPower * Math.cos(action.rotation)
+        this.pushY += pushPower * Math.sin(action.rotation)
+        action.debug += pushPower
+        
         action.counter += timeStep
         if (action.counter >= WINDUP_DURATION) {
+          console.log('+++ debug: ', action.debug)
           action.state = 'winddown'
           action.counter = 0
         }
@@ -228,14 +243,14 @@ class Hero extends Entity {
   Section: Physics/Getters and Setters
   ----------------------------------------------------------------------------
    */
-        
+  
   get moveDeceleration () {
     if (this.action?.name === 'move') return 0
     return this._moveDeceleration
   }
-         
+  
   get pushDeceleration () {
-    if (this.action?.name === 'dash') return 0
+    // if (this.action?.name === 'dash') return 0
     return this._pushDeceleration
   }
 }

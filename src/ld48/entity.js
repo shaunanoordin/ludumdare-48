@@ -1,7 +1,10 @@
 import { TILE_SIZE, ROTATIONS, DIRECTIONS, SHAPES, PLAYER_ACTIONS, EXPECTED_TIMESTEP } from './constants'
 
-const MAX_SPEED_MODIFIER = 3 / EXPECTED_TIMESTEP
-const ACCELERATION_MODIFIER = 12 / EXPECTED_TIMESTEP
+const MOVE_MAX_SPEED_MODIFIER = 2 / EXPECTED_TIMESTEP
+const PUSH_MAX_SPEED_MODIFIER = 8 / EXPECTED_TIMESTEP
+const MOVE_ACCELERATION_MODIFIER = 1 / EXPECTED_TIMESTEP
+const MOVE_DECELERATION_MODIFIER = 0.2 / EXPECTED_TIMESTEP
+const PUSH_DECELERATION_MODIFIER = 0.2 / EXPECTED_TIMESTEP
 
 class Entity {
   constructor (app) {
@@ -31,11 +34,11 @@ class Entity {
     this._solid = true
     this._movable = true
     this._mass = 2  // Only matters if solid && movable
-    this._moveAcceleration = this.size * ACCELERATION_MODIFIER
-    this._moveDeceleration = this.size * ACCELERATION_MODIFIER
-    this._moveMaxSpeed = this.size * MAX_SPEED_MODIFIER
-    this._pushDeceleration = this.size * ACCELERATION_MODIFIER
-    this._pushMaxSpeed = this.size * MAX_SPEED_MODIFIER
+    this._moveAcceleration = this.size * MOVE_ACCELERATION_MODIFIER
+    this._moveDeceleration = this.size * MOVE_DECELERATION_MODIFIER
+    this._moveMaxSpeed = this.size * MOVE_MAX_SPEED_MODIFIER
+    this._pushDeceleration = this.size * PUSH_DECELERATION_MODIFIER
+    this._pushMaxSpeed = this.size * PUSH_MAX_SPEED_MODIFIER
   }
   
   /*
@@ -44,17 +47,18 @@ class Entity {
    */
   
   play (timeStep) {
+    // Upkeep: limit speed
+    this.doMaxSpeedLimit(timeStep)
+    
     // Update position
-    const timeCorrection = (timeStep / EXPECTED_TIMESTEP)
+    const timeCorrection = 1
+    // const timeCorrection = (timeStep / EXPECTED_TIMESTEP)  // Edit: time correction may not be needed since Entities fix their own moveXY/pushXY values
     this.x += (this.moveX + this.pushX) * timeCorrection
     this.y += (this.moveY + this.pushY) * timeCorrection
     
     // Upkeep: deceleration
     this.doMoveDeceleration(timeStep)
     this.doPushDeceleration(timeStep)
-    
-    // Upkeep: limit speed
-    this.doMaxSpeedLimit(timeStep)
   }
   
   /*
@@ -154,7 +158,7 @@ class Entity {
   e.g. "if a hero is walking, ignore deceleration."
    */
   doMoveDeceleration (timeStep) {
-    const moveDeceleration = this.moveDeceleration * timeStep / 1000 || 0
+    const moveDeceleration = this.moveDeceleration * timeStep / EXPECTED_TIMESTEP || 0
     const curRotation = Math.atan2(this.moveY, this.moveX)
     const newMoveSpeed = Math.max(0, this.moveSpeed - moveDeceleration)
     this.moveX = newMoveSpeed * Math.cos(curRotation)
@@ -162,7 +166,7 @@ class Entity {
   }
   
   doPushDeceleration (timeStep) {
-    const pushDeceleration = this.pushDeceleration * timeStep / 1000 || 0
+    const pushDeceleration = this.pushDeceleration * timeStep / EXPECTED_TIMESTEP || 0
     const curRotation = Math.atan2(this.pushY, this.pushX)
     const newPushSpeed = Math.max(0, this.pushSpeed - pushDeceleration)
     this.pushX = newPushSpeed * Math.cos(curRotation)

@@ -235,7 +235,7 @@ class LD48 {
       c2d.fillStyle = '#c44'
       c2d.fillText(text, X_OFFSET, APP_HEIGHT + Y_OFFSET)
       
-      text = this.hero?.action?.name
+      text = this.hero?.action?.name + ' (' + this.hero?.moveSpeed.toFixed(2) + ')' 
       c2d.textAlign = 'right'
       c2d.strokeStyle = '#fff'
       c2d.strokeText(text, APP_WIDTH - X_OFFSET, APP_HEIGHT + Y_OFFSET)
